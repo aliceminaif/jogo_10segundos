@@ -1,1333 +1,1222 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Batalha dos 10 Segundos</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Batalha dos 10 Segundos</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Canvas Confetti Library for celebrations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Canvas Confetti Library for celebrations -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg-main: #F4F7FB;
+      --navy-dark: #0B1F3A;
+      --navy-sec: #123B68;
+      --blue-accent: #1677FF;
+      --blue-light: #4DA3FF;
+      --green-success: #22C55E;
+      --red-error: #EF4444;
+      --yellow-bonus: #F59E0B;
+    }
 
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-main);
+      color: #1E293B;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
 
-    <!-- Google Font: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    /* Custom Animations */
+    @keyframes pulseFast {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
 
-    <style>
-        :root {
-            --bg-main: #F4F7FB;
-            --navy-dark: #0B1F3A;
-            --navy-sec: #123B68;
-            --blue-accent: #1677FF;
-            --blue-light: #4DA3FF;
-            --green-success: #22C55E;
-            --red-error: #EF4444;
-            --yellow-bonus: #F59E0B;
-        }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-main);
-            color: #1E293B;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.8) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
 
-        /* Custom Animations */
-        @keyframes pulseFast {
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+    }
 
-            0%,
-            100% {
-                transform: scale(1);
-            }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(22, 119, 255, 0.4); }
+      50% { box-shadow: 0 0 30px rgba(22, 119, 255, 0.8); }
+    }
 
-            50% {
-                transform: scale(1.08);
-            }
-        }
+    .animate-pulse-fast {
+      animation: pulseFast 0.5s infinite;
+    }
 
-        @keyframes shake {
+    .animate-shake {
+      animation: shake 0.3s ease-in-out;
+    }
 
-            0%,
-            100% {
-                transform: translateX(0);
-            }
+    .animate-pop-in {
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
 
-            20%,
-            60% {
-                transform: translateX(-6px);
-            }
+    .glow-effect {
+      animation: glowPulse 2s infinite;
+    }
 
-            40%,
-            80% {
-                transform: translateX(6px);
-            }
-        }
+    .btn-press {
+      transition: all 0.1s ease;
+    }
+    .btn-press:active {
+      transform: scale(0.95);
+    }
 
-        @keyframes popIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.8) translateY(10px);
-            }
+    /* Glass and Card Effects */
+    .card-shadow {
+      box-shadow: 0 10px 25px -5px rgba(11, 31, 58, 0.08), 0 8px 10px -6px rgba(11, 31, 58, 0.04);
+    }
 
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
+    .navy-gradient {
+      background: linear-gradient(135deg, #0B1F3A 0%, #123B68 100%);
+    }
 
-        @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+    .accent-gradient {
+      background: linear-gradient(135deg, #1677FF 0%, #4DA3FF 100%);
+    }
 
-            100% {
-                opacity: 0;
-                transform: translateY(-40px) scale(1.2);
-            }
-        }
+    /* Floating Score Indicator */
+    .floating-score {
+      position: absolute;
+      pointer-events: none;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #22C55E;
+      animation: floatUp 0.8s ease-out forwards;
+      z-index: 50;
+    }
 
-        @keyframes glowPulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 15px rgba(22, 119, 255, 0.4);
-            }
-
-            50% {
-                box-shadow: 0 0 30px rgba(22, 119, 255, 0.8);
-            }
-        }
-
-        .animate-pulse-fast {
-            animation: pulseFast 0.5s infinite;
-        }
-
-        .animate-shake {
-            animation: shake 0.3s ease-in-out;
-        }
-
-        .animate-pop-in {
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .glow-effect {
-            animation: glowPulse 2s infinite;
-        }
-
-        .btn-press {
-            transition: all 0.1s ease;
-        }
-
-        .btn-press:active {
-            transform: scale(0.95);
-        }
-
-        /* Glass and Card Effects */
-        .card-shadow {
-            box-shadow: 0 10px 25px -5px rgba(11, 31, 58, 0.08), 0 8px 10px -6px rgba(11, 31, 58, 0.04);
-        }
-
-        .navy-gradient {
-            background: linear-gradient(135deg, #0B1F3A 0%, #123B68 100%);
-        }
-
-        .accent-gradient {
-            background: linear-gradient(135deg, #1677FF 0%, #4DA3FF 100%);
-        }
-
-        /* Floating Score Indicator */
-        .floating-score {
-            position: absolute;
-            pointer-events: none;
-            font-weight: 800;
-            font-size: 1.5rem;
-            color: #22C55E;
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 50;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #F4F7FB;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #CBD5E1;
-            border-radius: 9999px;
-        }
-    </style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F4F7FB;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+  </style>
 </head>
-
 <body class="min-h-screen flex flex-col justify-between antialiased overflow-x-hidden">
 
-    <!-- HEADER BAR -->
-    <header class="navy-gradient text-white shadow-lg sticky top-0 z-40">
-        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.showScreen('home')">
-                <div
-                    class="w-10 h-10 rounded-xl bg-[#1677FF] flex items-center justify-center text-white font-extrabold text-xl shadow-md">
-                    10s
-                </div>
-                <div>
-                    <h1 class="font-black text-lg md:text-xl tracking-tight leading-none text-white">BATALHA DOS 10s
-                    </h1>
-                    <p class="text-xs text-[#4DA3FF] font-medium hidden sm:block">Party Game Competitivo</p>
-                </div>
-            </div>
-
-            <!-- Header Action Controls -->
-            <div class="flex items-center space-x-3">
-                <!-- Player Badge (if set) -->
-                <div id="headerPlayerBadge"
-                    class="hidden sm:flex items-center bg-[#123B68] px-3 py-1.5 rounded-full text-xs font-semibold border border-[#1677FF]/40 text-blue-100">
-                    <i class="fa-solid fa-user text-[#4DA3FF] mr-1.5"></i>
-                    <span id="headerPlayerName">Jogador</span>
-                    <button onclick="app.promptChangeName()" class="ml-2 text-slate-300 hover:text-white"
-                        title="Alterar Nome">
-                        <i class="fa-solid fa-pen text-[10px]"></i>
-                    </button>
-                </div>
-
-                <!-- Sound Toggle Button -->
-                <button id="soundToggleBtn" onclick="app.toggleSound()"
-                    class="w-10 h-10 rounded-full bg-[#123B68] hover:bg-[#1677FF] transition flex items-center justify-center text-white text-lg shadow border border-white/10"
-                    title="Ativar/Desativar Som">
-                    <i id="soundIcon" class="fa-solid fa-volume-high"></i>
-                </button>
-            </div>
+  <!-- HEADER BAR -->
+  <header class="navy-gradient text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="app.showScreen('home')">
+        <div class="w-10 h-10 rounded-xl bg-[#1677FF] flex items-center justify-center text-white font-extrabold text-xl shadow-md">
+          10s
         </div>
-    </header>
+        <div>
+          <h1 class="font-black text-lg md:text-xl tracking-tight leading-none text-white">BATALHA DOS 10s</h1>
+          <p class="text-xs text-[#4DA3FF] font-medium hidden sm:block">Party Game Competitivo</p>
+        </div>
+      </div>
 
-    <!-- MAIN CONTAINER -->
-    <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center items-center">
+      <!-- Header Action Controls -->
+      <div class="flex items-center space-x-3">
+        <!-- Player Badge (if set) -->
+        <div id="headerPlayerBadge" class="hidden sm:flex items-center bg-[#123B68] px-3 py-1.5 rounded-full text-xs font-semibold border border-[#1677FF]/40 text-blue-100">
+          <i class="fa-solid fa-user text-[#4DA3FF] mr-1.5"></i>
+          <span id="headerPlayerName">Jogador</span>
+          <button onclick="app.promptChangeName()" class="ml-2 text-slate-300 hover:text-white" title="Alterar Nome">
+            <i class="fa-solid fa-pen text-[10px]"></i>
+          </button>
+        </div>
 
-        <!-- ==================== TELA 1: HOME ==================== -->
-        <section id="screenHome" class="w-full max-w-2xl text-center py-6 animate-pop-in">
-            <div
-                class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100 text-[#1677FF] font-bold text-xs md:text-sm mb-6 border border-blue-200">
-                ⚡ O jogo de festa mais veloz da turma!
-            </div>
+        <!-- Sound Toggle Button -->
+        <button id="soundToggleBtn" onclick="app.toggleSound()" class="w-10 h-10 rounded-full bg-[#123B68] hover:bg-[#1677FF] transition flex items-center justify-center text-white text-lg shadow border border-white/10" title="Ativar/Desativar Som">
+          <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+        </button>
+      </div>
+    </div>
+  </header>
 
-            <h2 class="text-3xl md:text-5xl font-black text-[#0B1F3A] mb-4 tracking-tight leading-tight">
-                BATALHA DOS<br><span class="text-[#1677FF]">10 SEGUNDOS</span>
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center items-center">
+
+    <!-- ==================== TELA 1: HOME ==================== -->
+    <section id="screenHome" class="w-full max-w-2xl text-center py-6 animate-pop-in">
+      <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100 text-[#1677FF] font-bold text-xs md:text-sm mb-6 border border-blue-200">
+        ⚡ O jogo de festa mais veloz da turma!
+      </div>
+
+      <h2 class="text-3xl md:text-5xl font-black text-[#0B1F3A] mb-4 tracking-tight leading-tight">
+        BATALHA DOS<br><span class="text-[#1677FF]">10 SEGUNDOS</span>
+      </h2>
+      
+      <p class="text-slate-600 font-medium text-base md:text-lg mb-8 max-w-lg mx-auto">
+        “Você tem 10 segundos. O que consegue fazer?”
+      </p>
+
+      <!-- Badge Indicators -->
+      <div class="flex flex-wrap justify-center gap-2 md:gap-3 text-xs md:text-sm font-semibold text-slate-700 mb-8">
+        <span class="bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5">
+          ⏱ Partidas rápidas
+        </span>
+        <span class="bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5">
+          🎯 Desafios variados
+        </span>
+        <span class="bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5">
+          🏆 Ranking competitivo
+        </span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+        <button onclick="app.startFlow()" class="btn-press py-4 px-8 rounded-xl bg-[#1677FF] hover:bg-[#123B68] text-white font-extrabold text-lg shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2 text-center glow-effect">
+          <i class="fa-solid fa-play"></i> JOGAR AGORA
+        </button>
+
+        <button onclick="app.showScreen('ranking')" class="btn-press py-4 px-6 rounded-xl bg-white hover:bg-slate-100 text-[#0B1F3A] font-bold text-base border border-slate-300 shadow-sm transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-trophy text-[#F59E0B]"></i> RANKING
+        </button>
+
+        <button onclick="app.openModal('modalHowToPlay')" class="btn-press py-4 px-5 rounded-xl bg-white hover:bg-slate-100 text-[#0B1F3A] font-bold text-base border border-slate-300 shadow-sm transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-circle-question text-[#1677FF]"></i> COMO JOGAR
+        </button>
+      </div>
+
+      <!-- Quick Records Summary Footer -->
+      <div class="mt-12 pt-6 border-t border-slate-200/80 flex justify-around text-center text-slate-600">
+        <div>
+          <p class="text-xs font-semibold uppercase text-slate-400">Sua Melhores Pontos</p>
+          <p id="homeBestScore" class="text-lg md:text-xl font-black text-[#0B1F3A]">0</p>
+        </div>
+        <div class="border-r border-slate-200"></div>
+        <div>
+          <p class="text-xs font-semibold uppercase text-slate-400">Partidas Jogadas</p>
+          <p id="homeTotalGames" class="text-lg md:text-xl font-black text-[#0B1F3A]">0</p>
+        </div>
+        <div class="border-r border-slate-200"></div>
+        <div>
+          <p class="text-xs font-semibold uppercase text-slate-400">Conquistas</p>
+          <p id="homeAchievementsCount" class="text-lg md:text-xl font-black text-[#1677FF]">0/6</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TELA 2: IDENTIFICAÇÃO DO JOGADOR ==================== -->
+    <section id="screenPlayerInput" class="hidden w-full max-w-md animate-pop-in">
+      <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow border border-slate-200 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-blue-50 text-[#1677FF] flex items-center justify-center text-2xl mx-auto mb-4 border border-blue-100">
+          <i class="fa-solid fa-user-gear"></i>
+        </div>
+        <h3 class="text-2xl font-extrabold text-[#0B1F3A] mb-1">Identificação</h3>
+        <p class="text-slate-500 text-sm mb-6">Digite seu nome para entrar no ranking da turma</p>
+
+        <form onsubmit="app.savePlayerName(event)" class="space-y-4">
+          <div class="text-left">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Seu Nome / Apelido</label>
+            <input type="text" id="playerNameInput" maxlength="15" placeholder="Ex: Lucas, Carol, Mestre10" required
+              class="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-[#1677FF] focus:outline-none text-slate-800 font-bold text-lg bg-slate-50 transition" />
+            <p id="nameInputError" class="text-xs text-[#EF4444] font-semibold mt-1 hidden">Por favor, digite um nome válido!</p>
+          </div>
+
+          <button type="submit" class="btn-press w-full py-4 rounded-xl bg-[#1677FF] hover:bg-[#123B68] text-white font-extrabold text-base shadow-md transition flex items-center justify-center gap-2">
+            CONTINUAR <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==================== CONTAGEM REGRESSIVA PRÉ-RODADA ==================== -->
+    <div id="preRoundOverlay" class="fixed inset-0 bg-[#0B1F3A]/90 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white hidden">
+      <div class="text-center animate-pop-in px-4">
+        <div id="preRoundTag" class="inline-block px-4 py-1 rounded-full bg-[#1677FF] text-white font-bold text-xs uppercase tracking-widest mb-3">
+          RODADA 1 DE 10
+        </div>
+        <h3 id="preRoundTitle" class="text-2xl md:text-3xl font-black mb-2 text-white">NOME DO DESAFIO</h3>
+        <p id="preRoundDesc" class="text-blue-200 text-sm md:text-base max-w-sm mx-auto mb-8">Instruções do desafio aparecem aqui</p>
+        
+        <!-- Big Animated Countdown Number -->
+        <div id="preRoundNumber" class="text-7xl md:text-9xl font-black text-[#4DA3FF] animate-bounce">
+          3
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TELA 3: JOGO ATIVO (MINIGAME) ==================== -->
+    <section id="screenGame" class="hidden w-full max-w-2xl flex-col items-center">
+      
+      <!-- Top Status Bar -->
+      <div class="w-full bg-white rounded-2xl p-4 card-shadow border border-slate-200 mb-4 flex items-center justify-between">
+        <!-- Round Info -->
+        <div>
+          <span id="gameRoundBadge" class="text-xs font-extrabold text-[#1677FF] bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100 uppercase">
+            Rodada 1/10
+          </span>
+          <p id="gamePlayerDisplay" class="text-xs font-bold text-slate-500 mt-1">Jogador</p>
+        </div>
+
+        <!-- Timer Display -->
+        <div class="text-center">
+          <div id="gameTimer" class="text-3xl md:text-4xl font-black text-[#0B1F3A] tracking-tight font-mono">
+            10.0
+          </div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Segundos</span>
+        </div>
+
+        <!-- Score & Combo -->
+        <div class="text-right">
+          <div class="text-xs font-bold text-slate-400 uppercase">Pontos</div>
+          <div id="gameScoreDisplay" class="text-xl md:text-2xl font-black text-[#0B1F3A]">0</div>
+          <div id="gameComboBadge" class="text-xs font-extrabold text-[#F59E0B] opacity-0 transition">
+            🔥 COMBO x1
+          </div>
+        </div>
+      </div>
+
+      <!-- Challenge Card Container -->
+      <div id="challengeCard" class="w-full bg-white rounded-3xl p-6 md:p-8 card-shadow border-2 border-slate-200 min-h-[380px] flex flex-col items-center justify-between relative overflow-hidden">
+        
+        <!-- Challenge Header Banner -->
+        <div class="w-full text-center mb-4">
+          <span id="finalRoundBanner" class="hidden inline-block bg-[#EF4444] text-white text-xs font-black px-3 py-0.5 rounded-full uppercase tracking-wider mb-2 animate-pulse">
+            🔥 RODADA FINAL - PONTOS EM DOBRO!
+          </span>
+          <h3 id="challengeTitle" class="text-xl md:text-2xl font-black text-[#0B1F3A]">
+            TÍTULO DO DESAFIO
+          </h3>
+          <p id="challengeInstruction" class="text-slate-600 text-sm font-semibold mt-1">
+            Instrução simples do que fazer.
+          </p>
+        </div>
+
+        <!-- Dynamic Challenge Workspace -->
+        <div id="challengeWorkspace" class="w-full flex-grow flex items-center justify-center my-2 relative">
+          <!-- Minigame UI dynamically injected here -->
+        </div>
+
+        <!-- Bottom Feedback Bar -->
+        <div id="challengeFeedback" class="h-8 flex items-center justify-center text-sm font-extrabold text-[#1677FF]">
+          <!-- Instant visual feedback messages -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TELA 4: RESULTADO DA PARTIDA ==================== -->
+    <section id="screenResults" class="hidden w-full max-w-xl text-center animate-pop-in">
+      <div class="bg-white rounded-3xl p-6 md:p-8 card-shadow border border-slate-200">
+        
+        <!-- Header Trophy Icon -->
+        <div class="w-20 h-20 rounded-full bg-amber-100 text-[#F59E0B] flex items-center justify-center text-4xl mx-auto mb-3 border-4 border-amber-200 shadow-inner">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+
+        <h2 class="text-2xl md:text-3xl font-black text-[#0B1F3A]">PARTIDA FINALIZADA!</h2>
+        <p id="resultPlayerName" class="text-lg font-bold text-[#1677FF] mb-6">Jogador</p>
+
+        <!-- Main Score Box -->
+        <div class="navy-gradient text-white rounded-2xl p-6 shadow-md mb-6 relative overflow-hidden">
+          <p class="text-xs uppercase font-extrabold text-blue-200 tracking-wider">Pontuação Total</p>
+          <p id="resultTotalScore" class="text-4xl md:text-5xl font-black my-1 text-white">0</p>
+          <p id="resultRecordBadge" class="hidden text-xs font-black text-[#F59E0B] bg-amber-950/50 inline-block px-3 py-1 rounded-full border border-amber-500/30 mt-2">
+            🏆 NOVO RECORDE PESSOAL!
+          </p>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="grid grid-cols-3 gap-3 text-center mb-6">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[10px] font-bold uppercase text-slate-400">Acertos</span>
+            <p id="resultHits" class="text-lg font-black text-[#0B1F3A]">0</p>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[10px] font-bold uppercase text-slate-400">Maior Combo</span>
+            <p id="resultMaxCombo" class="text-lg font-black text-[#F59E0B]">x0</p>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[10px] font-bold uppercase text-slate-400">Melhor Reação</span>
+            <p id="resultBestReaction" class="text-lg font-black text-[#1677FF]">--</p>
+          </div>
+        </div>
+
+        <!-- Rank Position Banner -->
+        <div id="resultRankBanner" class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6 text-slate-800">
+          <p class="text-xs font-bold uppercase text-blue-600">Sua Posição no Ranking</p>
+          <p id="resultRankPosition" class="text-2xl font-black text-[#0B1F3A] my-0.5">#--</p>
+          <p id="resultRankDifference" class="text-xs font-semibold text-slate-600">Calculando colocação...</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button onclick="app.startFlow()" class="btn-press flex-1 py-3.5 rounded-xl bg-[#1677FF] hover:bg-[#123B68] text-white font-extrabold text-base shadow transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate-right"></i> JOGAR NOVAMENTE
+          </button>
+          <button onclick="app.showScreen('ranking')" class="btn-press py-3.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0B1F3A] font-bold text-base transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-list-ol text-[#1677FF]"></i> RANKING
+          </button>
+          <button onclick="app.showScreen('home')" class="btn-press py-3.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base transition" title="Menu Principal">
+            <i class="fa-solid fa-house"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TELA 5: RANKING DA TURMA ==================== -->
+    <section id="screenRanking" class="hidden w-full max-w-3xl animate-pop-in">
+      <div class="bg-white rounded-3xl p-6 md:p-8 card-shadow border border-slate-200">
+        
+        <!-- Ranking Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-black text-[#0B1F3A] flex items-center gap-2">
+              <i class="fa-solid fa-trophy text-[#F59E0B]"></i> RANKING DA TURMA
             </h2>
+            <p class="text-slate-500 text-sm font-medium">Veja quem são os jogadores mais rápidos e habilidosos</p>
+          </div>
 
-            <p class="text-slate-600 font-medium text-base md:text-lg mb-8 max-w-lg mx-auto">
-                “Você tem 10 segundos. O que consegue fazer?”
-            </p>
-
-            <!-- Badge Indicators -->
-            <div
-                class="flex flex-wrap justify-center gap-2 md:gap-3 text-xs md:text-sm font-semibold text-slate-700 mb-8">
-                <span
-                    class="bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5">
-                    ⏱ Partidas rápidas
-                </span>
-                <span
-                    class="bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5">
-                    🎯 Desafios variados
-                </span>
-                <span
-                    class="bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1.5">
-                    🏆 Ranking competitivo
-                </span>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-                <button onclick="app.startFlow()"
-                    class="btn-press py-4 px-8 rounded-xl bg-[#1677FF] hover:bg-[#123B68] text-white font-extrabold text-lg shadow-lg hover:shadow-xl transition flex items-center justify-center gap-2 text-center glow-effect">
-                    <i class="fa-solid fa-play"></i> JOGAR AGORA
-                </button>
-
-                <button onclick="app.showScreen('ranking')"
-                    class="btn-press py-4 px-6 rounded-xl bg-white hover:bg-slate-100 text-[#0B1F3A] font-bold text-base border border-slate-300 shadow-sm transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-trophy text-[#F59E0B]"></i> RANKING
-                </button>
-
-                <button onclick="app.openModal('modalHowToPlay')"
-                    class="btn-press py-4 px-5 rounded-xl bg-white hover:bg-slate-100 text-[#0B1F3A] font-bold text-base border border-slate-300 shadow-sm transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-circle-question text-[#1677FF]"></i> COMO JOGAR
-                </button>
-            </div>
-
-            <!-- Quick Records Summary Footer -->
-            <div class="mt-12 pt-6 border-t border-slate-200/80 flex justify-around text-center text-slate-600">
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Sua Melhores Pontos</p>
-                    <p id="homeBestScore" class="text-lg md:text-xl font-black text-[#0B1F3A]">0</p>
-                </div>
-                <div class="border-r border-slate-200"></div>
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Partidas Jogadas</p>
-                    <p id="homeTotalGames" class="text-lg md:text-xl font-black text-[#0B1F3A]">0</p>
-                </div>
-                <div class="border-r border-slate-200"></div>
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Conquistas</p>
-                    <p id="homeAchievementsCount" class="text-lg md:text-xl font-black text-[#1677FF]">0/6</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== TELA 2: IDENTIFICAÇÃO DO JOGADOR ==================== -->
-        <section id="screenPlayerInput" class="hidden w-full max-w-md animate-pop-in">
-            <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow border border-slate-200 text-center">
-                <div
-                    class="w-16 h-16 rounded-2xl bg-blue-50 text-[#1677FF] flex items-center justify-center text-2xl mx-auto mb-4 border border-blue-100">
-                    <i class="fa-solid fa-user-gear"></i>
-                </div>
-                <h3 class="text-2xl font-extrabold text-[#0B1F3A] mb-1">Identificação</h3>
-                <p class="text-slate-500 text-sm mb-6">Digite seu nome para entrar no ranking da turma</p>
-
-                <form onsubmit="app.savePlayerName(event)" class="space-y-4">
-                    <div class="text-left">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Seu Nome /
-                            Apelido</label>
-                        <input type="text" id="playerNameInput" maxlength="15" placeholder="Ex: Lucas, Carol, Mestre10"
-                            required
-                            class="w-full px-4 py-3.5 rounded-xl border-2 border-slate-200 focus:border-[#1677FF] focus:outline-none text-slate-800 font-bold text-lg bg-slate-50 transition" />
-                        <p id="nameInputError" class="text-xs text-[#EF4444] font-semibold mt-1 hidden">Por favor,
-                            digite um nome válido!</p>
-                    </div>
-
-                    <button type="submit"
-                        class="btn-press w-full py-4 rounded-xl bg-[#1677FF] hover:bg-[#123B68] text-white font-extrabold text-base shadow-md transition flex items-center justify-center gap-2">
-                        CONTINUAR <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </form>
-            </div>
-        </section>
-
-        <!-- ==================== CONTAGEM REGRESSIVA PRÉ-RODADA ==================== -->
-        <div id="preRoundOverlay"
-            class="fixed inset-0 bg-[#0B1F3A]/90 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white hidden">
-            <div class="text-center animate-pop-in px-4">
-                <div id="preRoundTag"
-                    class="inline-block px-4 py-1 rounded-full bg-[#1677FF] text-white font-bold text-xs uppercase tracking-widest mb-3">
-                    RODADA 1 DE 10
-                </div>
-                <h3 id="preRoundTitle" class="text-2xl md:text-3xl font-black mb-2 text-white">NOME DO DESAFIO</h3>
-                <p id="preRoundDesc" class="text-blue-200 text-sm md:text-base max-w-sm mx-auto mb-8">Instruções do
-                    desafio aparecem aqui</p>
-
-                <!-- Big Animated Countdown Number -->
-                <div id="preRoundNumber" class="text-7xl md:text-9xl font-black text-[#4DA3FF] animate-bounce">
-                    3
-                </div>
-            </div>
+          <button onclick="app.showScreen('home')" class="btn-press self-start sm:self-auto px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold transition">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Voltar
+          </button>
         </div>
 
-        <!-- ==================== TELA 3: JOGO ATIVO (MINIGAME) ==================== -->
-        <section id="screenGame" class="hidden w-full max-w-2xl flex-col items-center">
-
-            <!-- Top Status Bar -->
-            <div
-                class="w-full bg-white rounded-2xl p-4 card-shadow border border-slate-200 mb-4 flex items-center justify-between">
-                <!-- Round Info -->
-                <div>
-                    <span id="gameRoundBadge"
-                        class="text-xs font-extrabold text-[#1677FF] bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100 uppercase">
-                        Rodada 1/10
-                    </span>
-                    <p id="gamePlayerDisplay" class="text-xs font-bold text-slate-500 mt-1">Jogador</p>
-                </div>
-
-                <!-- Timer Display -->
-                <div class="text-center">
-                    <div id="gameTimer" class="text-3xl md:text-4xl font-black text-[#0B1F3A] tracking-tight font-mono">
-                        10.0
-                    </div>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Segundos</span>
-                </div>
-
-                <!-- Score & Combo -->
-                <div class="text-right">
-                    <div class="text-xs font-bold text-slate-400 uppercase">Pontos</div>
-                    <div id="gameScoreDisplay" class="text-xl md:text-2xl font-black text-[#0B1F3A]">0</div>
-                    <div id="gameComboBadge" class="text-xs font-extrabold text-[#F59E0B] opacity-0 transition">
-                        🔥 COMBO x1
-                    </div>
-                </div>
-            </div>
-
-            <!-- Challenge Card Container -->
-            <div id="challengeCard"
-                class="w-full bg-white rounded-3xl p-6 md:p-8 card-shadow border-2 border-slate-200 min-h-[380px] flex flex-col items-center justify-between relative overflow-hidden">
-
-                <!-- Challenge Header Banner -->
-                <div class="w-full text-center mb-4">
-                    <span id="finalRoundBanner"
-                        class="hidden inline-block bg-[#EF4444] text-white text-xs font-black px-3 py-0.5 rounded-full uppercase tracking-wider mb-2 animate-pulse">
-                        🔥 RODADA FINAL - PONTOS EM DOBRO!
-                    </span>
-                    <h3 id="challengeTitle" class="text-xl md:text-2xl font-black text-[#0B1F3A]">
-                        TÍTULO DO DESAFIO
-                    </h3>
-                    <p id="challengeInstruction" class="text-slate-600 text-sm font-semibold mt-1">
-                        Instrução simples do que fazer.
-                    </p>
-                </div>
-
-                <!-- Dynamic Challenge Workspace -->
-                <div id="challengeWorkspace" class="w-full flex-grow flex items-center justify-center my-2 relative">
-                    <!-- Minigame UI dynamically injected here -->
-                </div>
-
-                <!-- Bottom Feedback Bar -->
-                <div id="challengeFeedback"
-                    class="h-8 flex items-center justify-center text-sm font-extrabold text-[#1677FF]">
-                    <!-- Instant visual feedback messages -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== TELA 4: RESULTADO DA PARTIDA ==================== -->
-        <section id="screenResults" class="hidden w-full max-w-xl text-center animate-pop-in">
-            <div class="bg-white rounded-3xl p-6 md:p-8 card-shadow border border-slate-200">
-
-                <!-- Header Trophy Icon -->
-                <div
-                    class="w-20 h-20 rounded-full bg-amber-100 text-[#F59E0B] flex items-center justify-center text-4xl mx-auto mb-3 border-4 border-amber-200 shadow-inner">
-                    <i class="fa-solid fa-trophy"></i>
-                </div>
-
-                <h2 class="text-2xl md:text-3xl font-black text-[#0B1F3A]">PARTIDA FINALIZADA!</h2>
-                <p id="resultPlayerName" class="text-lg font-bold text-[#1677FF] mb-6">Jogador</p>
-
-                <!-- Main Score Box -->
-                <div class="navy-gradient text-white rounded-2xl p-6 shadow-md mb-6 relative overflow-hidden">
-                    <p class="text-xs uppercase font-extrabold text-blue-200 tracking-wider">Pontuação Total</p>
-                    <p id="resultTotalScore" class="text-4xl md:text-5xl font-black my-1 text-white">0</p>
-                    <p id="resultRecordBadge"
-                        class="hidden text-xs font-black text-[#F59E0B] bg-amber-950/50 inline-block px-3 py-1 rounded-full border border-amber-500/30 mt-2">
-                        🏆 NOVO RECORDE PESSOAL!
-                    </p>
-                </div>
-
-                <!-- Statistics Grid -->
-                <div class="grid grid-cols-3 gap-3 text-center mb-6">
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span class="text-[10px] font-bold uppercase text-slate-400">Acertos</span>
-                        <p id="resultHits" class="text-lg font-black text-[#0B1F3A]">0</p>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span class="text-[10px] font-bold uppercase text-slate-400">Maior Combo</span>
-                        <p id="resultMaxCombo" class="text-lg font-black text-[#F59E0B]">x0</p>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span class="text-[10px] font-bold uppercase text-slate-400">Melhor Reação</span>
-                        <p id="resultBestReaction" class="text-lg font-black text-[#1677FF]">--</p>
-                    </div>
-                </div>
-
-                <!-- Rank Position Banner -->
-                <div id="resultRankBanner"
-                    class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6 text-slate-800">
-                    <p class="text-xs font-bold uppercase text-blue-600">Sua Posição no Ranking</p>
-                    <p id="resultRankPosition" class="text-2xl font-black text-[#0B1F3A] my-0.5">#--</p>
-                    <p id="resultRankDifference" class="text-xs font-semibold text-slate-600">Calculando colocação...
-                    </p>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button onclick="app.startFlow()"
-                        class="btn-press flex-1 py-3.5 rounded-xl bg-[#1677FF] hover:bg-[#123B68] text-white font-extrabold text-base shadow transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-rotate-right"></i> JOGAR NOVAMENTE
-                    </button>
-                    <button onclick="app.showScreen('ranking')"
-                        class="btn-press py-3.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0B1F3A] font-bold text-base transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-list-ol text-[#1677FF]"></i> RANKING
-                    </button>
-                    <button onclick="app.showScreen('home')"
-                        class="btn-press py-3.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base transition"
-                        title="Menu Principal">
-                        <i class="fa-solid fa-house"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== TELA 5: RANKING DA TURMA ==================== -->
-        <section id="screenRanking" class="hidden w-full max-w-3xl animate-pop-in">
-            <div class="bg-white rounded-3xl p-6 md:p-8 card-shadow border border-slate-200">
-
-                <!-- Ranking Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-black text-[#0B1F3A] flex items-center gap-2">
-                            <i class="fa-solid fa-trophy text-[#F59E0B]"></i> RANKING DA TURMA
-                        </h2>
-                        <p class="text-slate-500 text-sm font-medium">Veja quem são os jogadores mais rápidos e
-                            habilidosos</p>
-                    </div>
-
-                    <button onclick="app.showScreen('home')"
-                        class="btn-press self-start sm:self-auto px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold transition">
-                        <i class="fa-solid fa-arrow-left mr-1"></i> Voltar
-                    </button>
-                </div>
-
-                <!-- Ranking Filter Tabs -->
-                <div class="flex overflow-x-auto space-x-2 pb-2 mb-4 text-xs font-bold scrollbar-none">
-                    <button onclick="app.switchRankingCategory('score')" id="tabRankScore"
-                        class="px-3.5 py-2 rounded-xl bg-[#0B1F3A] text-white whitespace-nowrap shadow-sm">
-                        🏆 Geral
-                    </button>
-                    <button onclick="app.switchRankingCategory('fastest')" id="tabRankFastest"
-                        class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap">
-                        ⚡ Mais Rápido
-                    </button>
-                    <button onclick="app.switchRankingCategory('combo')" id="tabRankCombo"
-                        class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap">
-                        🔥 Maior Combo
-                    </button>
-                    <button onclick="app.switchRankingCategory('wins')" id="tabRankWins"
-                        class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap">
-                        🥇 Mais Vitórias
-                    </button>
-                    <button onclick="app.switchRankingCategory('round')" id="tabRankRound"
-                        class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap">
-                        💯 Melhor Rodada
-                    </button>
-                </div>
-
-                <!-- Current Player Standout Box -->
-                <div id="rankingCurrentPlayerBanner"
-                    class="hidden mb-4 p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between text-xs md:text-sm">
-                    <div class="flex items-center gap-2">
-                        <span
-                            class="w-7 h-7 rounded-full bg-[#1677FF] text-white font-black flex items-center justify-center text-xs"
-                            id="myRankPos">#4</span>
-                        <span class="font-bold text-[#0B1F3A]" id="myRankName">Você</span>
-                    </div>
-                    <span class="text-slate-600 font-semibold" id="myRankGap">Faltam 100 pts para o top 3!</span>
-                </div>
-
-                <!-- Leaderboard Table -->
-                <div class="overflow-x-auto rounded-2xl border border-slate-200">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-extrabold">
-                                <th class="py-3 px-4 text-center">Pos</th>
-                                <th class="py-3 px-4">Jogador</th>
-                                <th id="thRankMetric" class="py-3 px-4 text-right">Pontos</th>
-                                <th class="py-3 px-4 text-center hidden md:table-cell">Vitórias</th>
-                                <th class="py-3 px-4 text-right hidden sm:table-cell">Melhor Rodada</th>
-                            </tr>
-                        </thead>
-                        <tbody id="rankingTableBody"
-                            class="divide-y divide-slate-100 text-sm font-semibold text-slate-800">
-                            <!-- Populated dynamically via JS -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Ranking Controls Footer -->
-                <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between text-xs">
-                    <button onclick="app.showScreen('records')"
-                        class="text-[#1677FF] hover:underline font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-chart-simple"></i> Ver Meus Recordes & Conquistas
-                    </button>
-                    <button onclick="app.confirmClearData()"
-                        class="text-slate-400 hover:text-[#EF4444] transition font-semibold">
-                        <i class="fa-solid fa-trash-can mr-1"></i> Limpar Dados
-                    </button>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ==================== TELA 6: MEUS RECORDES & CONQUISTAS ==================== -->
-        <section id="screenRecords" class="hidden w-full max-w-2xl animate-pop-in">
-            <div class="bg-white rounded-3xl p-6 md:p-8 card-shadow border border-slate-200">
-
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-black text-[#0B1F3A] flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-[#1677FF]"></i> MEUS RECORDES
-                    </h2>
-                    <button onclick="app.showScreen('home')"
-                        class="btn-press px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold transition">
-                        <i class="fa-solid fa-arrow-left mr-1"></i> Voltar
-                    </button>
-                </div>
-
-                <!-- Personal Stats Grid -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
-                        <i class="fa-solid fa-star text-[#F59E0B] text-lg mb-1"></i>
-                        <p class="text-[10px] font-bold uppercase text-slate-400">Maior Pontuação</p>
-                        <p id="recHighScore" class="text-xl font-black text-[#0B1F3A]">0</p>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
-                        <i class="fa-solid fa-fire text-[#EF4444] text-lg mb-1"></i>
-                        <p class="text-[10px] font-bold uppercase text-slate-400">Maior Combo</p>
-                        <p id="recMaxCombo" class="text-xl font-black text-[#0B1F3A]">x0</p>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
-                        <i class="fa-solid fa-bolt text-[#1677FF] text-lg mb-1"></i>
-                        <p class="text-[10px] font-bold uppercase text-slate-400">Melhor Reação</p>
-                        <p id="recBestReaction" class="text-xl font-black text-[#0B1F3A]">--</p>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
-                        <i class="fa-solid fa-gamepad text-[#22C55E] text-lg mb-1"></i>
-                        <p class="text-[10px] font-bold uppercase text-slate-400">Partidas</p>
-                        <p id="recTotalGames" class="text-xl font-black text-[#0B1F3A]">0</p>
-                    </div>
-                </div>
-
-                <!-- Achievements Title -->
-                <h3 class="text-lg font-extrabold text-[#0B1F3A] mb-3 flex items-center justify-between">
-                    <span>🏆 CONQUISTAS</span>
-                    <span id="achievementsRatio" class="text-xs font-bold text-[#1677FF]">0/6 Unlocked</span>
-                </h3>
-
-                <!-- Achievements Grid -->
-                <div id="achievementsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <!-- Populated by JS -->
-                </div>
-
-            </div>
-        </section>
-
-    </main>
-
-    <!-- MODAL: COMO JOGAR -->
-    <div id="modalHowToPlay"
-        class="fixed inset-0 bg-[#0B1F3A]/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div
-            class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full card-shadow border border-slate-200 animate-pop-in max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-black text-[#0B1F3A] flex items-center gap-2">
-                    <i class="fa-solid fa-circle-question text-[#1677FF]"></i> Como Jogar
-                </h3>
-                <button onclick="app.closeModal('modalHowToPlay')"
-                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold">✕</button>
-            </div>
-
-            <div class="space-y-4 text-sm text-slate-700">
-                <div class="bg-blue-50 p-3.5 rounded-2xl border border-blue-100 flex gap-3 items-start">
-                    <div class="text-xl text-[#1677FF] font-black">1.</div>
-                    <div>
-                        <strong class="text-[#0B1F3A] block">10 Rodadas Alucinantes</strong>
-                        Cada partida tem 10 desafios sorteados aleatoriamente. Você tem exatamente 10 segundos por
-                        rodada!
-                    </div>
-                </div>
-
-                <div class="bg-blue-50 p-3.5 rounded-2xl border border-blue-100 flex gap-3 items-start">
-                    <div class="text-xl text-[#1677FF] font-black">2.</div>
-                    <div>
-                        <strong class="text-[#0B1F3A] block">Velocidade Gera Pontos & Combos</strong>
-                        Quanto mais rápido você responder e acertar, maior será seu bônus de pontos! Acertos seguidos
-                        sobem seu multiplicador de Combo (🔥 x2, x3, x5).
-                    </div>
-                </div>
-
-                <div class="bg-blue-50 p-3.5 rounded-2xl border border-blue-100 flex gap-3 items-start">
-                    <div class="text-xl text-[#1677FF] font-black">3.</div>
-                    <div>
-                        <strong class="text-[#0B1F3A] block">Dificuldade Crescente & Rodada Final</strong>
-                        As rodadas ficam progressivamente mais rápidas e exigentes. A 10ª rodada é a RODADA FINAL e vale
-                        pontos em dobro!
-                    </div>
-                </div>
-
-                <div class="bg-blue-50 p-3.5 rounded-2xl border border-blue-100 flex gap-3 items-start">
-                    <div class="text-xl text-[#1677FF] font-black">4.</div>
-                    <div>
-                        <strong class="text-[#0B1F3A] block">Suba no Ranking da Turma</strong>
-                        Seus pontos vão automaticamente para a tabela comparativa. Desafie seus amigos e descubra quem
-                        tem o melhor reflexo!
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="app.closeModal('modalHowToPlay')"
-                class="btn-press w-full mt-6 py-3.5 rounded-xl bg-[#1677FF] text-white font-extrabold text-base">
-                ENTENDI, BORA JOGAR!
-            </button>
+        <!-- Ranking Filter Tabs -->
+        <div class="flex overflow-x-auto space-x-2 pb-2 mb-4 text-xs font-bold scrollbar-none">
+          <button onclick="app.switchRankingCategory('score')" id="tabRankScore" class="px-3.5 py-2 rounded-xl bg-[#0B1F3A] text-white whitespace-nowrap shadow-sm">
+            🏆 Geral
+          </button>
+          <button onclick="app.switchRankingCategory('fastest')" id="tabRankFastest" class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap">
+            ⚡ Mais Rápido
+          </button>
+          <button onclick="app.switchRankingCategory('combo')" id="tabRankCombo" class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap">
+            🔥 Maior Combo
+          </button>
+          <button onclick="app.switchRankingCategory('wins')" id="tabRankWins" class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap">
+            🥇 Mais Vitórias
+          </button>
+          <button onclick="app.switchRankingCategory('round')" id="tabRankRound" class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap">
+            💯 Melhor Rodada
+          </button>
         </div>
+
+        <!-- Current Player Standout Box -->
+        <div id="rankingCurrentPlayerBanner" class="hidden mb-4 p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between text-xs md:text-sm">
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-full bg-[#1677FF] text-white font-black flex items-center justify-center text-xs" id="myRankPos">#4</span>
+            <span class="font-bold text-[#0B1F3A]" id="myRankName">Você</span>
+          </div>
+          <span class="text-slate-600 font-semibold" id="myRankGap">Faltam 100 pts para o top 3!</span>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="overflow-x-auto rounded-2xl border border-slate-200">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-extrabold">
+                <th class="py-3 px-4 text-center">Pos</th>
+                <th class="py-3 px-4">Jogador</th>
+                <th id="thRankMetric" class="py-3 px-4 text-right">Pontos</th>
+                <th class="py-3 px-4 text-center hidden md:table-cell">Vitórias</th>
+                <th class="py-3 px-4 text-right hidden sm:table-cell">Melhor Rodada</th>
+              </tr>
+            </thead>
+            <tbody id="rankingTableBody" class="divide-y divide-slate-100 text-sm font-semibold text-slate-800">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Ranking Controls Footer -->
+        <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between text-xs">
+          <button onclick="app.showScreen('records')" class="text-[#1677FF] hover:underline font-bold flex items-center gap-1">
+            <i class="fa-solid fa-chart-simple"></i> Ver Meus Recordes & Conquistas
+          </button>
+          <button onclick="app.confirmClearData()" class="text-slate-400 hover:text-[#EF4444] transition font-semibold">
+            <i class="fa-solid fa-trash-can mr-1"></i> Limpar Dados
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TELA 6: MEUS RECORDES & CONQUISTAS ==================== -->
+    <section id="screenRecords" class="hidden w-full max-w-2xl animate-pop-in">
+      <div class="bg-white rounded-3xl p-6 md:p-8 card-shadow border border-slate-200">
+        
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-black text-[#0B1F3A] flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-[#1677FF]"></i> MEUS RECORDES
+          </h2>
+          <button onclick="app.showScreen('home')" class="btn-press px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold transition">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Voltar
+          </button>
+        </div>
+
+        <!-- Personal Stats Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
+            <i class="fa-solid fa-star text-[#F59E0B] text-lg mb-1"></i>
+            <p class="text-[10px] font-bold uppercase text-slate-400">Maior Pontuação</p>
+            <p id="recHighScore" class="text-xl font-black text-[#0B1F3A]">0</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
+            <i class="fa-solid fa-fire text-[#EF4444] text-lg mb-1"></i>
+            <p class="text-[10px] font-bold uppercase text-slate-400">Maior Combo</p>
+            <p id="recMaxCombo" class="text-xl font-black text-[#0B1F3A]">x0</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
+            <i class="fa-solid fa-bolt text-[#1677FF] text-lg mb-1"></i>
+            <p class="text-[10px] font-bold uppercase text-slate-400">Melhor Reação</p>
+            <p id="recBestReaction" class="text-xl font-black text-[#0B1F3A]">--</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
+            <i class="fa-solid fa-gamepad text-[#22C55E] text-lg mb-1"></i>
+            <p class="text-[10px] font-bold uppercase text-slate-400">Partidas</p>
+            <p id="recTotalGames" class="text-xl font-black text-[#0B1F3A]">0</p>
+          </div>
+        </div>
+
+        <!-- Achievements Title -->
+        <h3 class="text-lg font-extrabold text-[#0B1F3A] mb-3 flex items-center justify-between">
+          <span>🏆 CONQUISTAS</span>
+          <span id="achievementsRatio" class="text-xs font-bold text-[#1677FF]">0/6 Unlocked</span>
+        </h3>
+
+        <!-- Achievements Grid -->
+        <div id="achievementsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Populated by JS -->
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: COMO JOGAR -->
+  <div id="modalHowToPlay" class="fixed inset-0 bg-[#0B1F3A]/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full card-shadow border border-slate-200 animate-pop-in max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-black text-[#0B1F3A] flex items-center gap-2">
+          <i class="fa-solid fa-circle-question text-[#1677FF]"></i> Como Jogar
+        </h3>
+        <button onclick="app.closeModal('modalHowToPlay')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold">✕</button>
+      </div>
+
+      <div class="space-y-4 text-sm text-slate-700">
+        <div class="bg-blue-50 p-3.5 rounded-2xl border border-blue-100 flex gap-3 items-start">
+          <div class="text-xl text-[#1677FF] font-black">1.</div>
+          <div>
+            <strong class="text-[#0B1F3A] block">10 Rodadas Alucinantes</strong>
+            Cada partida tem 10 desafios sorteados aleatoriamente. Você tem exatamente 10 segundos por rodada!
+          </div>
+        </div>
+
+        <div class="bg-blue-50 p-3.5 rounded-2xl border border-blue-100 flex gap-3 items-start">
+          <div class="text-xl text-[#1677FF] font-black">2.</div>
+          <div>
+            <strong class="text-[#0B1F3A] block">Velocidade Gera Pontos & Combos</strong>
+            Quanto mais rápido você responder e acertar, maior será seu bônus de pontos! Acertos seguidos sobem seu multiplicador de Combo (🔥 x2, x3, x5).
+          </div>
+        </div>
+
+        <div class="bg-blue-50 p-3.5 rounded-2xl border border-blue-100 flex gap-3 items-start">
+          <div class="text-xl text-[#1677FF] font-black">3.</div>
+          <div>
+            <strong class="text-[#0B1F3A] block">Dificuldade Crescente & Rodada Final</strong>
+            As rodadas ficam progressivamente mais rápidas e exigentes. A 10ª rodada é a RODADA FINAL e vale pontos em dobro!
+          </div>
+        </div>
+
+        <div class="bg-blue-50 p-3.5 rounded-2xl border border-blue-100 flex gap-3 items-start">
+          <div class="text-xl text-[#1677FF] font-black">4.</div>
+          <div>
+            <strong class="text-[#0B1F3A] block">Suba no Ranking da Turma</strong>
+            Seus pontos vão automaticamente para a tabela comparativa. Desafie seus amigos e descubra quem tem o melhor reflexo!
+          </div>
+        </div>
+      </div>
+
+      <button onclick="app.closeModal('modalHowToPlay')" class="btn-press w-full mt-6 py-3.5 rounded-xl bg-[#1677FF] text-white font-extrabold text-base">
+        ENTENDI, BORA JOGAR!
+      </button>
     </div>
+  </div>
 
-    <!-- MODAL: CONFIRMAR LIMPAR DADOS -->
-    <div id="modalConfirmClear"
-        class="fixed inset-0 bg-[#0B1F3A]/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full card-shadow text-center animate-pop-in">
-            <div
-                class="w-14 h-14 rounded-full bg-red-100 text-[#EF4444] flex items-center justify-center text-2xl mx-auto mb-3">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <h3 class="text-xl font-extrabold text-[#0B1F3A] mb-1">Apagar Dados?</h3>
-            <p class="text-xs text-slate-500 mb-6">Isso redefinirá seu ranking local, recordes e conquistas. Esta ação
-                não pode ser desfeita.</p>
-
-            <div class="flex gap-3">
-                <button onclick="app.closeModal('modalConfirmClear')"
-                    class="flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm">Cancelar</button>
-                <button onclick="app.clearAllData()"
-                    class="flex-1 py-3 rounded-xl bg-[#EF4444] text-white font-bold text-sm">Sim, Apagar</button>
-            </div>
-        </div>
+  <!-- MODAL: CONFIRMAR LIMPAR DADOS -->
+  <div id="modalConfirmClear" class="fixed inset-0 bg-[#0B1F3A]/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl p-6 max-w-sm w-full card-shadow text-center animate-pop-in">
+      <div class="w-14 h-14 rounded-full bg-red-100 text-[#EF4444] flex items-center justify-center text-2xl mx-auto mb-3">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="text-xl font-extrabold text-[#0B1F3A] mb-1">Apagar Dados?</h3>
+      <p class="text-xs text-slate-500 mb-6">Isso redefinirá seu ranking local, recordes e conquistas. Esta ação não pode ser desfeita.</p>
+      
+      <div class="flex gap-3">
+        <button onclick="app.closeModal('modalConfirmClear')" class="flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm">Cancelar</button>
+        <button onclick="app.clearAllData()" class="flex-1 py-3 rounded-xl bg-[#EF4444] text-white font-bold text-sm">Sim, Apagar</button>
+      </div>
     </div>
+  </div>
 
-    <!-- TOAST NOTIFICATION CONTAINER FOR ACHIEVEMENTS -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+  <!-- TOAST NOTIFICATION CONTAINER FOR ACHIEVEMENTS -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
-    <!-- FOOTER -->
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 font-medium">
-        <p>⚡ <strong>Batalha dos 10 Segundos</strong> &bull; Criado para partidas dinâmicas e competitivas em turma</p>
-    </footer>
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 font-medium">
+    <p>⚡ <strong>Batalha dos 10 Segundos</strong> &bull; Criado para partidas dinâmicas e competitivas em turma</p>
+  </footer>
 
-    <script>
-        /**
-         * Web Audio API Synthesizer Engine
-         * Zero external audio files required! Clean, crisp, instant.
-         */
-        class SoundEngine {
-            constructor() {
-                this.ctx = null;
-                this.enabled = true;
-            }
+  <script>
+    /**
+     * Web Audio API Synthesizer Engine
+     * Zero external audio files required! Clean, crisp, instant.
+     */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
 
-            init() {
-                if (!this.ctx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    if (AudioContext) {
-                        this.ctx = new AudioContext();
-                    }
-                }
-                if (this.ctx && this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-            }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
 
-            playTone(freq, duration = 0.1, type = 'sine', gainVal = 0.1) {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
+      playTone(freq, duration = 0.1, type = 'sine', gainVal = 0.1) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
 
-                try {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = type;
-                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
 
-                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
 
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          console.warn('Audio playback glitch', e);
+        }
+      }
 
-                    osc.start();
-                    osc.stop(this.ctx.currentTime + duration);
-                } catch (e) {
-                    console.warn('Audio playback glitch', e);
-                }
-            }
+      playClick() {
+        this.playTone(600, 0.05, 'sine', 0.08);
+      }
 
-            playClick() {
-                this.playTone(600, 0.05, 'sine', 0.08);
-            }
+      playCountdownBeep(isFinal = false) {
+        if (isFinal) {
+          this.playTone(1200, 0.25, 'triangle', 0.2);
+        } else {
+          this.playTone(750, 0.12, 'sine', 0.12);
+        }
+      }
 
-            playCountdownBeep(isFinal = false) {
-                if (isFinal) {
-                    this.playTone(1200, 0.25, 'triangle', 0.2);
-                } else {
-                    this.playTone(750, 0.12, 'sine', 0.12);
-                }
-            }
+      playSuccess() {
+        if (!this.enabled) return;
+        this.init();
+        this.playTone(523.25, 0.08, 'sine', 0.15); // C5
+        setTimeout(() => this.playTone(659.25, 0.08, 'sine', 0.15), 60); // E5
+        setTimeout(() => this.playTone(783.99, 0.15, 'sine', 0.2), 120); // G5
+      }
 
-            playSuccess() {
-                if (!this.enabled) return;
-                this.init();
-                this.playTone(523.25, 0.08, 'sine', 0.15); // C5
-                setTimeout(() => this.playTone(659.25, 0.08, 'sine', 0.15), 60); // E5
-                setTimeout(() => this.playTone(783.99, 0.15, 'sine', 0.2), 120); // G5
-            }
+      playError() {
+        if (!this.enabled) return;
+        this.init();
+        this.playTone(180, 0.2, 'sawtooth', 0.18);
+      }
 
-            playError() {
-                if (!this.enabled) return;
-                this.init();
-                this.playTone(180, 0.2, 'sawtooth', 0.18);
-            }
+      playCombo() {
+        if (!this.enabled) return;
+        this.playTone(880, 0.1, 'sine', 0.15);
+        setTimeout(() => this.playTone(1108.73, 0.15, 'triangle', 0.2), 70);
+      }
 
-            playCombo() {
-                if (!this.enabled) return;
-                this.playTone(880, 0.1, 'sine', 0.15);
-                setTimeout(() => this.playTone(1108.73, 0.15, 'triangle', 0.2), 70);
-            }
+      playTimeOut() {
+        if (!this.enabled) return;
+        this.playTone(300, 0.15, 'sawtooth', 0.2);
+        setTimeout(() => this.playTone(150, 0.3, 'sawtooth', 0.2), 150);
+      }
 
-            playTimeOut() {
-                if (!this.enabled) return;
-                this.playTone(300, 0.15, 'sawtooth', 0.2);
-                setTimeout(() => this.playTone(150, 0.3, 'sawtooth', 0.2), 150);
-            }
+      playRecordFanfare() {
+        if (!this.enabled) return;
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => this.playTone(freq, 0.2, 'triangle', 0.2), idx * 100);
+        });
+      }
+    }
 
-            playRecordFanfare() {
-                if (!this.enabled) return;
-                const notes = [440, 554.37, 659.25, 880];
-                notes.forEach((freq, idx) => {
-                    setTimeout(() => this.playTone(freq, 0.2, 'triangle', 0.2), idx * 100);
-                });
-            }
+    const sound = new SoundEngine();
+
+    /**
+     * MAIN GAME ENGINE & STATE MANAGEMENT
+     */
+    class GameEngine {
+      constructor() {
+        this.playerName = localStorage.getItem('b10s_playerName') || '';
+        this.soundEnabled = localStorage.getItem('b10s_sound') !== 'false';
+        sound.enabled = this.soundEnabled;
+
+        // Game Session State
+        this.currentRound = 0;
+        this.maxRounds = 10;
+        this.totalScore = 0;
+        this.combo = 1;
+        this.maxCombo = 1;
+        this.totalHits = 0;
+        this.bestReactionTime = Infinity;
+        this.roundScores = [];
+        this.activeMinigame = null;
+        this.isRoundActive = false;
+
+        // Timers & Timeouts Tracking
+        this.roundTimerInterval = null;
+        this.preRoundInterval = null;
+        this.activeTimeouts = [];
+        this.timeLeft = 10.0;
+        this.startTime = 0;
+
+        // Local Storage Leaderboard & Records
+        this.records = JSON.parse(localStorage.getItem('b10s_records')) || {
+          highScore: 0,
+          maxCombo: 0,
+          bestReaction: null,
+          totalGames: 0,
+          wins: 0
+        };
+
+        this.unlockedAchievements = new Set(JSON.parse(localStorage.getItem('b10s_achievements')) || []);
+        
+        // Ranking inicia vazio por padrão até que os jogadores registrem pontuações
+        this.leaderboard = JSON.parse(localStorage.getItem('b10s_leaderboard')) || [];
+
+        // Minigames Registry
+        this.minigames = [
+          'fastClick', 'oddOneOut', 'memorySeq', 'targetShoot',
+          'ascendingOrder', 'dontClick', 'reactionTest', 'sequenceRecall'
+        ];
+
+        this.achievementsList = [
+          { id: 'lightning', name: '⚡ RELÂMPAGO', desc: 'Reação abaixo de 0,5s', icon: 'fa-bolt' },
+          { id: 'comboMonster', name: '🔥 COMBO MONSTRO', desc: 'Consiga um combo x5', icon: 'fa-fire' },
+          { id: 'champion', name: '🏆 CAMPEÃO', desc: 'Termine em 1º lugar no ranking', icon: 'fa-trophy' },
+          { id: 'precision', name: '🎯 PRECISÃO', desc: 'Complete um desafio com 100% acerto', icon: 'fa-bullseye' },
+          { id: 'perfectRound', name: '💯 PERFEITO', desc: 'Faça mais de 1200 pts em 1 rodada', icon: 'fa-star' },
+          { id: 'unstoppable', name: '👑 IMPARÁVEL', desc: 'Jogue 5 partidas completas', icon: 'fa-crown' }
+        ];
+      }
+
+      init() {
+        this.updateHeaderAndSoundUI();
+        this.updateHomeStats();
+        this.renderAchievementsList();
+      }
+
+      // Timeout Safety Helper
+      setTimeoutTracked(fn, delay) {
+        const id = setTimeout(() => {
+          this.activeTimeouts = this.activeTimeouts.filter(tId => tId !== id);
+          fn();
+        }, delay);
+        this.activeTimeouts.push(id);
+        return id;
+      }
+
+      clearAllTrackedTimeouts() {
+        this.activeTimeouts.forEach(id => clearTimeout(id));
+        this.activeTimeouts = [];
+      }
+
+      updateHeaderAndSoundUI() {
+        const soundBtn = document.getElementById('soundToggleBtn');
+        const soundIcon = document.getElementById('soundIcon');
+        if (this.soundEnabled) {
+          if (soundIcon) soundIcon.className = 'fa-solid fa-volume-high';
+          if (soundBtn) soundBtn.classList.remove('opacity-50');
+        } else {
+          if (soundIcon) soundIcon.className = 'fa-solid fa-volume-xmark';
+          if (soundBtn) soundBtn.classList.add('opacity-50');
         }
 
-        const sound = new SoundEngine();
+        const nameBadge = document.getElementById('headerPlayerBadge');
+        const nameText = document.getElementById('headerPlayerName');
+        if (this.playerName) {
+          if (nameText) nameText.textContent = this.playerName;
+          if (nameBadge) nameBadge.classList.remove('hidden');
+        } else {
+          if (nameBadge) nameBadge.classList.add('hidden');
+        }
+      }
 
-        /**
-         * MAIN GAME ENGINE & STATE MANAGEMENT
-         */
-        class GameEngine {
-            constructor() {
-                this.playerName = localStorage.getItem('b10s_playerName') || '';
-                this.soundEnabled = localStorage.getItem('b10s_sound') !== 'false';
-                sound.enabled = this.soundEnabled;
+      toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        sound.enabled = this.soundEnabled;
+        localStorage.setItem('b10s_sound', this.soundEnabled);
+        this.updateHeaderAndSoundUI();
+        if (this.soundEnabled) sound.playClick();
+      }
 
-                // Game Session State
-                this.currentRound = 0;
-                this.maxRounds = 10;
-                this.totalScore = 0;
-                this.combo = 1;
-                this.maxCombo = 1;
-                this.totalHits = 0;
-                this.bestReactionTime = Infinity;
-                this.roundScores = [];
-                this.activeMinigame = null;
-                this.isRoundActive = false;
+      showScreen(screenId) {
+        sound.playClick();
+        this.stopTimer();
+        this.clearAllTrackedTimeouts();
+        if (this.preRoundInterval) {
+          clearInterval(this.preRoundInterval);
+          this.preRoundInterval = null;
+        }
+        const overlay = document.getElementById('preRoundOverlay');
+        if (overlay) overlay.classList.add('hidden');
 
-                // Timers & Timeouts Tracking
-                this.roundTimerInterval = null;
-                this.preRoundInterval = null;
-                this.activeTimeouts = [];
-                this.timeLeft = 10.0;
-                this.startTime = 0;
+        this.isRoundActive = false;
 
-                // Local Storage Leaderboard & Records
-                this.records = JSON.parse(localStorage.getItem('b10s_records')) || {
-                    highScore: 0,
-                    maxCombo: 0,
-                    bestReaction: null,
-                    totalGames: 0,
-                    wins: 0
-                };
+        ['screenHome', 'screenPlayerInput', 'screenGame', 'screenResults', 'screenRanking', 'screenRecords'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('hidden');
+        });
 
-                this.unlockedAchievements = new Set(JSON.parse(localStorage.getItem('b10s_achievements')) || []);
+        if (screenId === 'home') {
+          const el = document.getElementById('screenHome');
+          if (el) el.classList.remove('hidden');
+          this.updateHomeStats();
+        } else if (screenId === 'input') {
+          const el = document.getElementById('screenPlayerInput');
+          if (el) el.classList.remove('hidden');
+        } else if (screenId === 'game') {
+          const el = document.getElementById('screenGame');
+          if (el) {
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+          }
+        } else if (screenId === 'results') {
+          const el = document.getElementById('screenResults');
+          if (el) el.classList.remove('hidden');
+        } else if (screenId === 'ranking') {
+          const el = document.getElementById('screenRanking');
+          if (el) el.classList.remove('hidden');
+          this.renderRanking('score');
+        } else if (screenId === 'records') {
+          const el = document.getElementById('screenRecords');
+          if (el) el.classList.remove('hidden');
+          this.renderRecordsScreen();
+        }
+      }
 
-                this.leaderboard = JSON.parse(localStorage.getItem('b10s_leaderboard')) || [
-                    {name: 'Alice', score: 9850, wins: 5, bestRound: 1240, fastestReaction: 0.38, maxCombo: 6},
-                    {name: 'Ruan', score: 9120, wins: 4, bestRound: 1180, fastestReaction: 0.42, maxCombo: 5},
-                    {name: 'Melissa', score: 8740, wins: 4, bestRound: 1090, fastestReaction: 0.45, maxCombo: 5},
-                    {name: 'Gabriel', score: 7900, wins: 2, bestRound: 980, fastestReaction: 0.49, maxCombo: 4}
-                ];
+      openModal(modalId) {
+        sound.playClick();
+        const el = document.getElementById(modalId);
+        if (el) el.classList.remove('hidden');
+      }
 
-                // Minigames Registry
-                this.minigames = [
-                    'fastClick', 'oddOneOut', 'memorySeq', 'targetShoot',
-                    'ascendingOrder', 'dontClick', 'reactionTest', 'sequenceRecall'
-                ];
+      closeModal(modalId) {
+        sound.playClick();
+        const el = document.getElementById(modalId);
+        if (el) el.classList.add('hidden');
+      }
 
-                this.achievementsList = [
-                    {id: 'lightning', name: '⚡ RELÂMPAGO', desc: 'Reação abaixo de 0,5s', icon: 'fa-bolt'},
-                    {id: 'comboMonster', name: '🔥 COMBO MONSTRO', desc: 'Consiga um combo x5', icon: 'fa-fire'},
-                    {id: 'champion', name: '🏆 CAMPEÃO', desc: 'Termine em 1º lugar no ranking', icon: 'fa-trophy'},
-                    {id: 'precision', name: '🎯 PRECISÃO', desc: 'Complete um desafio com 100% acerto', icon: 'fa-bullseye'},
-                    {id: 'perfectRound', name: '💯 PERFEITO', desc: 'Faça mais de 1200 pts em 1 rodada', icon: 'fa-star'},
-                    {id: 'unstoppable', name: '👑 IMPARÁVEL', desc: 'Jogue 5 partidas completas', icon: 'fa-crown'}
-                ];
+      startFlow() {
+        if (!this.playerName) {
+          this.showScreen('input');
+        } else {
+          this.startNewMatch();
+        }
+      }
+
+      promptChangeName() {
+        const input = document.getElementById('playerNameInput');
+        if (input) input.value = this.playerName;
+        this.showScreen('input');
+      }
+
+      savePlayerName(e) {
+        e.preventDefault();
+        const inputEl = document.getElementById('playerNameInput');
+        const input = inputEl ? inputEl.value.trim() : '';
+        const errorEl = document.getElementById('nameInputError');
+        if (!input) {
+          if (errorEl) errorEl.classList.remove('hidden');
+          return;
+        }
+        if (errorEl) errorEl.classList.add('hidden');
+        this.playerName = input;
+        localStorage.setItem('b10s_playerName', this.playerName);
+        this.updateHeaderAndSoundUI();
+        this.startNewMatch();
+      }
+
+      updateHomeStats() {
+        const bestScore = document.getElementById('homeBestScore');
+        if (bestScore) bestScore.textContent = this.records.highScore.toLocaleString('pt-BR');
+
+        const totalGames = document.getElementById('homeTotalGames');
+        if (totalGames) totalGames.textContent = this.records.totalGames;
+
+        const achCount = document.getElementById('homeAchievementsCount');
+        if (achCount) achCount.textContent = `${this.unlockedAchievements.size}/${this.achievementsList.length}`;
+      }
+
+      startNewMatch() {
+        this.currentRound = 0;
+        this.totalScore = 0;
+        this.combo = 1;
+        this.maxCombo = 1;
+        this.totalHits = 0;
+        this.bestReactionTime = Infinity;
+        this.roundScores = [];
+        this.showScreen('game');
+        this.nextRound();
+      }
+
+      nextRound() {
+        this.clearAllTrackedTimeouts();
+        this.stopTimer();
+        this.isRoundActive = false;
+
+        this.currentRound++;
+        if (this.currentRound > this.maxRounds) {
+          this.finishMatch();
+          return;
+        }
+
+        // Pick Minigame
+        const gameKey = this.minigames[(this.currentRound - 1) % this.minigames.length];
+        this.activeMinigame = gameKey;
+
+        // Display Header Banner for final round
+        const finalBanner = document.getElementById('finalRoundBanner');
+        if (finalBanner) {
+          if (this.currentRound === 10) {
+            finalBanner.classList.remove('hidden');
+          } else {
+            finalBanner.classList.add('hidden');
+          }
+        }
+
+        // Pre-Round Countdown Overlay
+        this.showPreRoundCountdown(gameKey);
+      }
+
+      showPreRoundCountdown(gameKey) {
+        this.clearAllTrackedTimeouts();
+        this.stopTimer();
+        this.isRoundActive = false;
+
+        const overlay = document.getElementById('preRoundOverlay');
+        const tag = document.getElementById('preRoundTag');
+        const title = document.getElementById('preRoundTitle');
+        const desc = document.getElementById('preRoundDesc');
+        const numEl = document.getElementById('preRoundNumber');
+
+        if (tag) tag.textContent = `RODADA ${this.currentRound} DE ${this.maxRounds}`;
+        
+        const info = this.getMinigameInfo(gameKey);
+        if (title) title.textContent = info.title;
+        if (desc) desc.textContent = info.instruction;
+
+        if (overlay) overlay.classList.remove('hidden');
+
+        let count = 3;
+        if (numEl) numEl.textContent = count;
+        sound.playCountdownBeep(false);
+
+        if (this.preRoundInterval) clearInterval(this.preRoundInterval);
+
+        this.preRoundInterval = setInterval(() => {
+          count--;
+          if (count > 0) {
+            if (numEl) numEl.textContent = count;
+            sound.playCountdownBeep(false);
+          } else if (count === 0) {
+            if (numEl) numEl.textContent = "VALENDO!";
+            sound.playCountdownBeep(true);
+          } else {
+            clearInterval(this.preRoundInterval);
+            this.preRoundInterval = null;
+            if (overlay) overlay.classList.add('hidden');
+            this.startMinigame(gameKey);
+          }
+        }, 850);
+      }
+
+      getMinigameInfo(key) {
+        const infos = {
+          fastClick: { title: '⚡ CLIQUE RÁPIDO', instruction: 'Clique no botão o máximo de vezes possível!' },
+          oddOneOut: { title: '🔍 ENCONTRE O DIFERENTE', instruction: 'Encontre e clique na figura que é diferente!' },
+          memorySeq: { title: '🧠 MEMÓRIA', instruction: 'Memorize e repita a sequência de cores!' },
+          targetShoot: { title: '🎯 ALVO RÁPIDO', instruction: 'Acerte o alvo onde ele aparecer!' },
+          ascendingOrder: { title: '🔢 ORDEM CRESCENTE', instruction: 'Clique nos números na ordem (1 → 2 → 3...)' },
+          dontClick: { title: '🚫 NÃO CLIQUE!', instruction: 'Clique APENAS no elemento solicitado!' },
+          reactionTest: { title: '⚡ TESTE DE REAÇÃO', instruction: 'Aguarde o sinal verde e clique IMEDIATAMENTE!' },
+          sequenceRecall: { title: '🔮 SEQUÊNCIA MÁGICA', instruction: 'Qual foi a sequência mostrada?' }
+        };
+        return infos[key] || { title: 'DESAFIO', instruction: 'Seja o mais rápido!' };
+      }
+
+      startMinigame(key) {
+        this.clearAllTrackedTimeouts();
+        this.stopTimer();
+
+        const info = this.getMinigameInfo(key);
+
+        const titleEl = document.getElementById('challengeTitle');
+        if (titleEl) titleEl.textContent = info.title;
+
+        const instructionEl = document.getElementById('challengeInstruction');
+        if (instructionEl) instructionEl.textContent = info.instruction;
+
+        const badgeEl = document.getElementById('gameRoundBadge');
+        if (badgeEl) badgeEl.textContent = `Rodada ${this.currentRound}/${this.maxRounds}`;
+
+        const playerDisplayEl = document.getElementById('gamePlayerDisplay');
+        if (playerDisplayEl) playerDisplayEl.textContent = this.playerName;
+
+        const scoreDisplayEl = document.getElementById('gameScoreDisplay');
+        if (scoreDisplayEl) scoreDisplayEl.textContent = this.totalScore.toLocaleString('pt-BR');
+
+        this.updateComboDisplay();
+
+        const workspace = document.getElementById('challengeWorkspace');
+        if (workspace) {
+          workspace.innerHTML = '';
+          workspace.style.pointerEvents = 'auto';
+        }
+
+        const feedbackEl = document.getElementById('challengeFeedback');
+        if (feedbackEl) feedbackEl.textContent = '';
+
+        this.timeLeft = 10.0;
+        this.updateTimerDisplay();
+
+        this.isRoundActive = true;
+        this.startTime = Date.now();
+        this.startTimer();
+
+        if (workspace) this.initMinigameLogic(key, workspace);
+      }
+
+      startTimer() {
+        if (this.roundTimerInterval) clearInterval(this.roundTimerInterval);
+
+        const timerEl = document.getElementById('gameTimer');
+        const totalDuration = 10000;
+        const endTime = Date.now() + totalDuration;
+
+        this.roundTimerInterval = setInterval(() => {
+          const now = Date.now();
+          const remaining = Math.max(0, endTime - now);
+          this.timeLeft = (remaining / 1000).toFixed(1);
+
+          this.updateTimerDisplay();
+
+          if (timerEl) {
+            if (remaining <= 3000 && remaining > 0) {
+              timerEl.classList.add('text-[#EF4444]', 'animate-pulse-fast');
+            } else {
+              timerEl.classList.remove('text-[#EF4444]', 'animate-pulse-fast');
             }
-
-            init() {
-                this.updateHeaderAndSoundUI();
-                this.updateHomeStats();
-                this.renderAchievementsList();
-            }
-
-            // Timeout Safety Helper
-            setTimeoutTracked(fn, delay) {
-                const id = setTimeout(() => {
-                    this.activeTimeouts = this.activeTimeouts.filter(tId => tId !== id);
-                    fn();
-                }, delay);
-                this.activeTimeouts.push(id);
-                return id;
-            }
-
-            clearAllTrackedTimeouts() {
-                this.activeTimeouts.forEach(id => clearTimeout(id));
-                this.activeTimeouts = [];
-            }
-
-            updateHeaderAndSoundUI() {
-                const soundBtn = document.getElementById('soundToggleBtn');
-                const soundIcon = document.getElementById('soundIcon');
-                if (this.soundEnabled) {
-                    if (soundIcon) soundIcon.className = 'fa-solid fa-volume-high';
-                    if (soundBtn) soundBtn.classList.remove('opacity-50');
-                } else {
-                    if (soundIcon) soundIcon.className = 'fa-solid fa-volume-xmark';
-                    if (soundBtn) soundBtn.classList.add('opacity-50');
-                }
-
-                const nameBadge = document.getElementById('headerPlayerBadge');
-                const nameText = document.getElementById('headerPlayerName');
-                if (this.playerName) {
-                    if (nameText) nameText.textContent = this.playerName;
-                    if (nameBadge) nameBadge.classList.remove('hidden');
-                } else {
-                    if (nameBadge) nameBadge.classList.add('hidden');
-                }
-            }
-
-            toggleSound() {
-                this.soundEnabled = !this.soundEnabled;
-                sound.enabled = this.soundEnabled;
-                localStorage.setItem('b10s_sound', this.soundEnabled);
-                this.updateHeaderAndSoundUI();
-                if (this.soundEnabled) sound.playClick();
-            }
-
-            showScreen(screenId) {
-                sound.playClick();
-                this.stopTimer();
-                this.clearAllTrackedTimeouts();
-                if (this.preRoundInterval) {
-                    clearInterval(this.preRoundInterval);
-                    this.preRoundInterval = null;
-                }
-                const overlay = document.getElementById('preRoundOverlay');
-                if (overlay) overlay.classList.add('hidden');
-
-                this.isRoundActive = false;
-
-                ['screenHome', 'screenPlayerInput', 'screenGame', 'screenResults', 'screenRanking', 'screenRecords'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.add('hidden');
-                });
-
-                if (screenId === 'home') {
-                    const el = document.getElementById('screenHome');
-                    if (el) el.classList.remove('hidden');
-                    this.updateHomeStats();
-                } else if (screenId === 'input') {
-                    const el = document.getElementById('screenPlayerInput');
-                    if (el) el.classList.remove('hidden');
-                } else if (screenId === 'game') {
-                    const el = document.getElementById('screenGame');
-                    if (el) {
-                        el.classList.remove('hidden');
-                        el.classList.add('flex');
-                    }
-                } else if (screenId === 'results') {
-                    const el = document.getElementById('screenResults');
-                    if (el) el.classList.remove('hidden');
-                } else if (screenId === 'ranking') {
-                    const el = document.getElementById('screenRanking');
-                    if (el) el.classList.remove('hidden');
-                    this.renderRanking('score');
-                } else if (screenId === 'records') {
-                    const el = document.getElementById('screenRecords');
-                    if (el) el.classList.remove('hidden');
-                    this.renderRecordsScreen();
-                }
-            }
-
-            openModal(modalId) {
-                sound.playClick();
-                const el = document.getElementById(modalId);
-                if (el) el.classList.remove('hidden');
-            }
-
-            closeModal(modalId) {
-                sound.playClick();
-                const el = document.getElementById(modalId);
-                if (el) el.classList.add('hidden');
-            }
-
-            startFlow() {
-                if (!this.playerName) {
-                    this.showScreen('input');
-                } else {
-                    this.startNewMatch();
-                }
-            }
-
-            promptChangeName() {
-                const input = document.getElementById('playerNameInput');
-                if (input) input.value = this.playerName;
-                this.showScreen('input');
-            }
-
-            savePlayerName(e) {
-                e.preventDefault();
-                const inputEl = document.getElementById('playerNameInput');
-                const input = inputEl ? inputEl.value.trim() : '';
-                const errorEl = document.getElementById('nameInputError');
-                if (!input) {
-                    if (errorEl) errorEl.classList.remove('hidden');
-                    return;
-                }
-                if (errorEl) errorEl.classList.add('hidden');
-                this.playerName = input;
-                localStorage.setItem('b10s_playerName', this.playerName);
-                this.updateHeaderAndSoundUI();
-                this.startNewMatch();
-            }
-
-            updateHomeStats() {
-                const bestScore = document.getElementById('homeBestScore');
-                if (bestScore) bestScore.textContent = this.records.highScore.toLocaleString('pt-BR');
-
-                const totalGames = document.getElementById('homeTotalGames');
-                if (totalGames) totalGames.textContent = this.records.totalGames;
-
-                const achCount = document.getElementById('homeAchievementsCount');
-                if (achCount) achCount.textContent = `${this.unlockedAchievements.size}/${this.achievementsList.length}`;
-            }
-
-            startNewMatch() {
-                this.currentRound = 0;
-                this.totalScore = 0;
-                this.combo = 1;
-                this.maxCombo = 1;
-                this.totalHits = 0;
-                this.bestReactionTime = Infinity;
-                this.roundScores = [];
-                this.showScreen('game');
-                this.nextRound();
-            }
-
-            nextRound() {
-                this.clearAllTrackedTimeouts();
-                this.stopTimer();
-                this.isRoundActive = false;
-
-                this.currentRound++;
-                if (this.currentRound > this.maxRounds) {
-                    this.finishMatch();
-                    return;
-                }
-
-                // Pick Minigame
-                const gameKey = this.minigames[(this.currentRound - 1) % this.minigames.length];
-                this.activeMinigame = gameKey;
-
-                // Display Header Banner for final round
-                const finalBanner = document.getElementById('finalRoundBanner');
-                if (finalBanner) {
-                    if (this.currentRound === 10) {
-                        finalBanner.classList.remove('hidden');
-                    } else {
-                        finalBanner.classList.add('hidden');
-                    }
-                }
-
-                // Pre-Round Countdown Overlay
-                this.showPreRoundCountdown(gameKey);
-            }
-
-            showPreRoundCountdown(gameKey) {
-                this.clearAllTrackedTimeouts();
-                this.stopTimer();
-                this.isRoundActive = false;
-
-                const overlay = document.getElementById('preRoundOverlay');
-                const tag = document.getElementById('preRoundTag');
-                const title = document.getElementById('preRoundTitle');
-                const desc = document.getElementById('preRoundDesc');
-                const numEl = document.getElementById('preRoundNumber');
-
-                if (tag) tag.textContent = `RODADA ${this.currentRound} DE ${this.maxRounds}`;
-
-                const info = this.getMinigameInfo(gameKey);
-                if (title) title.textContent = info.title;
-                if (desc) desc.textContent = info.instruction;
-
-                if (overlay) overlay.classList.remove('hidden');
-
-                let count = 3;
-                if (numEl) numEl.textContent = count;
-                sound.playCountdownBeep(false);
-
-                if (this.preRoundInterval) clearInterval(this.preRoundInterval);
-
-                this.preRoundInterval = setInterval(() => {
-                    count--;
-                    if (count > 0) {
-                        if (numEl) numEl.textContent = count;
-                        sound.playCountdownBeep(false);
-                    } else if (count === 0) {
-                        if (numEl) numEl.textContent = "VALENDO!";
-                        sound.playCountdownBeep(true);
-                    } else {
-                        clearInterval(this.preRoundInterval);
-                        this.preRoundInterval = null;
-                        if (overlay) overlay.classList.add('hidden');
-                        this.startMinigame(gameKey);
-                    }
-                }, 850);
-            }
-
-            getMinigameInfo(key) {
-                const infos = {
-                    fastClick: {title: '⚡ CLIQUE RÁPIDO', instruction: 'Clique no botão o máximo de vezes possível!'},
-                    oddOneOut: {title: '🔍 ENCONTRE O DIFERENTE', instruction: 'Encontre e clique na figura que é diferente!'},
-                    memorySeq: {title: '🧠 MEMÓRIA', instruction: 'Memorize e repita a sequência de cores!'},
-                    targetShoot: {title: '🎯 ALVO RÁPIDO', instruction: 'Acerte o alvo onde ele aparecer!'},
-                    ascendingOrder: {title: '🔢 ORDEM CRESCENTE', instruction: 'Clique nos números na ordem (1 → 2 → 3...)'},
-                    dontClick: {title: '🚫 NÃO CLIQUE!', instruction: 'Clique APENAS no elemento solicitado!'},
-                    reactionTest: {title: '⚡ TESTE DE REAÇÃO', instruction: 'Aguarde o sinal verde e clique IMEDIATAMENTE!'},
-                    sequenceRecall: {title: '🔮 SEQUÊNCIA MÁGICA', instruction: 'Qual foi a sequência mostrada?'}
-                };
-                return infos[key] || {title: 'DESAFIO', instruction: 'Seja o mais rápido!'};
-            }
-
-            startMinigame(key) {
-                this.clearAllTrackedTimeouts();
-                this.stopTimer();
-
-                const info = this.getMinigameInfo(key);
-
-                const titleEl = document.getElementById('challengeTitle');
-                if (titleEl) titleEl.textContent = info.title;
-
-                const instructionEl = document.getElementById('challengeInstruction');
-                if (instructionEl) instructionEl.textContent = info.instruction;
-
-                const badgeEl = document.getElementById('gameRoundBadge');
-                if (badgeEl) badgeEl.textContent = `Rodada ${this.currentRound}/${this.maxRounds}`;
-
-                const playerDisplayEl = document.getElementById('gamePlayerDisplay');
-                if (playerDisplayEl) playerDisplayEl.textContent = this.playerName;
-
-                const scoreDisplayEl = document.getElementById('gameScoreDisplay');
-                if (scoreDisplayEl) scoreDisplayEl.textContent = this.totalScore.toLocaleString('pt-BR');
-
-                this.updateComboDisplay();
-
-                const workspace = document.getElementById('challengeWorkspace');
-                if (workspace) {
-                    workspace.innerHTML = '';
-                    workspace.style.pointerEvents = 'auto';
-                }
-
-                const feedbackEl = document.getElementById('challengeFeedback');
-                if (feedbackEl) feedbackEl.textContent = '';
-
-                this.timeLeft = 10.0;
-                this.updateTimerDisplay();
-
-                this.isRoundActive = true;
-                this.startTime = Date.now();
-                this.startTimer();
-
-                if (workspace) this.initMinigameLogic(key, workspace);
-            }
-
-            startTimer() {
-                if (this.roundTimerInterval) clearInterval(this.roundTimerInterval);
-
-                const timerEl = document.getElementById('gameTimer');
-                const totalDuration = 10000;
-                const endTime = Date.now() + totalDuration;
-
-                this.roundTimerInterval = setInterval(() => {
-                    const now = Date.now();
-                    const remaining = Math.max(0, endTime - now);
-                    this.timeLeft = (remaining / 1000).toFixed(1);
-
-                    this.updateTimerDisplay();
-
-                    if (timerEl) {
-                        if (remaining <= 3000 && remaining > 0) {
-                            timerEl.classList.add('text-[#EF4444]', 'animate-pulse-fast');
-                        } else {
-                            timerEl.classList.remove('text-[#EF4444]', 'animate-pulse-fast');
-                        }
-                    }
-
-                    if (remaining <= 0) {
-                        this.stopTimer();
-                        this.handleRoundTimeout();
-                    }
-                }, 50);
-            }
-
-            updateTimerDisplay() {
-                const timerEl = document.getElementById('gameTimer');
-                if (timerEl) timerEl.textContent = parseFloat(this.timeLeft).toFixed(1);
-            }
-
-            stopTimer() {
-                if (this.roundTimerInterval) {
-                    clearInterval(this.roundTimerInterval);
-                    this.roundTimerInterval = null;
-                }
-            }
-
-            addScore(points, isHitsCount = 1) {
-                const roundMultiplier = (this.currentRound === 10) ? 2 : 1;
-                const multipliedPoints = Math.round(points * this.combo * roundMultiplier);
-
-                this.totalScore += multipliedPoints;
-                this.totalHits += isHitsCount;
-
-                const scoreDisplay = document.getElementById('gameScoreDisplay');
-                if (scoreDisplay) scoreDisplay.textContent = this.totalScore.toLocaleString('pt-BR');
-
-                this.showFloatingText(`+${multipliedPoints}`);
-
-                this.combo++;
-                if (this.combo > this.maxCombo) this.maxCombo = this.combo;
-                this.updateComboDisplay();
-
-                if (this.combo > 2) {
-                    sound.playCombo();
-                } else {
-                    sound.playSuccess();
-                }
-
-                if (this.maxCombo >= 5) this.unlockAchievement('comboMonster');
-
-                return multipliedPoints;
-            }
-
-            resetCombo() {
-                this.combo = 1;
-                this.updateComboDisplay();
-                sound.playError();
-            }
-
-            updateComboDisplay() {
-                const badge = document.getElementById('gameComboBadge');
-                if (!badge) return;
-                if (this.combo > 1) {
-                    badge.textContent = `🔥 COMBO x${this.combo}`;
-                    badge.classList.remove('opacity-0');
-                } else {
-                    badge.classList.add('opacity-0');
-                }
-            }
-
-            showFloatingText(text, color = '#22C55E') {
-                const workspace = document.getElementById('challengeWorkspace');
-                if (!workspace) return;
-                const floatEl = document.createElement('div');
-                floatEl.className = 'floating-score';
-                floatEl.style.color = color;
-                floatEl.style.top = '40%';
-                floatEl.style.left = '50%';
-                floatEl.textContent = text;
-                workspace.appendChild(floatEl);
-
-                setTimeout(() => floatEl.remove(), 800);
-            }
-
-            handleRoundTimeout() {
-                if (!this.isRoundActive) return;
-                this.isRoundActive = false;
-                this.stopTimer();
-
-                const workspace = document.getElementById('challengeWorkspace');
-                if (workspace) workspace.style.pointerEvents = 'none';
-
-                sound.playTimeOut();
-                const feedbackEl = document.getElementById('challengeFeedback');
-                if (feedbackEl) feedbackEl.textContent = '⏱ Tempo Esgotado!';
-
-                this.setTimeoutTracked(() => {
-                    this.nextRound();
-                }, 1000);
-            }
-
-            handleRoundFailure(msg = '❌ Falhou!') {
-                if (!this.isRoundActive) return;
-                this.isRoundActive = false;
-                this.stopTimer();
-
-                const workspace = document.getElementById('challengeWorkspace');
-                if (workspace) workspace.style.pointerEvents = 'none';
-
-                this.resetCombo();
-
-                const feedbackEl = document.getElementById('challengeFeedback');
-                if (feedbackEl) feedbackEl.textContent = msg;
-
-                this.setTimeoutTracked(() => {
-                    this.nextRound();
-                }, 1000);
-            }
-
-            completeRoundSuccessfully(bonusPoints = 200) {
-                if (!this.isRoundActive) return;
-                this.isRoundActive = false;
-                this.stopTimer();
-
-                const workspace = document.getElementById('challengeWorkspace');
-                if (workspace) workspace.style.pointerEvents = 'none';
-
-                const speedBonus = Math.round(parseFloat(this.timeLeft) * 25);
-                const earned = this.addScore(bonusPoints + speedBonus, 1);
-
-                if (earned >= 1200) this.unlockAchievement('perfectRound');
-
-                const feedbackEl = document.getElementById('challengeFeedback');
-                if (feedbackEl) feedbackEl.textContent = `✨ Perfeito! +${earned} pts`;
-
-                this.setTimeoutTracked(() => {
-                    this.nextRound();
-                }, 1200);
-            }
-
-            /* ================= MINIGAMES LOGIC ================= */
-            initMinigameLogic(key, container) {
-                switch (key) {
-                    case 'fastClick':
-                        this.setupFastClick(container);
-                        break;
-                    case 'oddOneOut':
-                        this.setupOddOneOut(container);
-                        break;
-                    case 'memorySeq':
-                        this.setupMemorySeq(container);
-                        break;
-                    case 'targetShoot':
-                        this.setupTargetShoot(container);
-                        break;
-                    case 'ascendingOrder':
-                        this.setupAscendingOrder(container);
-                        break;
-                    case 'dontClick':
-                        this.setupDontClick(container);
-                        break;
-                    case 'reactionTest':
-                        this.setupReactionTest(container);
-                        break;
-                    case 'sequenceRecall':
-                        this.setupSequenceRecall(container);
-                        break;
-                }
-            }
-
-            // 1. FAST CLICK
-            setupFastClick(container) {
-                let clicks = 0;
-                container.innerHTML = `
+          }
+
+          if (remaining <= 0) {
+            this.stopTimer();
+            this.handleRoundTimeout();
+          }
+        }, 50);
+      }
+
+      updateTimerDisplay() {
+        const timerEl = document.getElementById('gameTimer');
+        if (timerEl) timerEl.textContent = parseFloat(this.timeLeft).toFixed(1);
+      }
+
+      stopTimer() {
+        if (this.roundTimerInterval) {
+          clearInterval(this.roundTimerInterval);
+          this.roundTimerInterval = null;
+        }
+      }
+
+      addScore(points, isHitsCount = 1) {
+        const roundMultiplier = (this.currentRound === 10) ? 2 : 1;
+        const multipliedPoints = Math.round(points * this.combo * roundMultiplier);
+        
+        this.totalScore += multipliedPoints;
+        this.totalHits += isHitsCount;
+        
+        const scoreDisplay = document.getElementById('gameScoreDisplay');
+        if (scoreDisplay) scoreDisplay.textContent = this.totalScore.toLocaleString('pt-BR');
+
+        this.showFloatingText(`+${multipliedPoints}`);
+
+        this.combo++;
+        if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+        this.updateComboDisplay();
+
+        if (this.combo > 2) {
+          sound.playCombo();
+        } else {
+          sound.playSuccess();
+        }
+
+        if (this.maxCombo >= 5) this.unlockAchievement('comboMonster');
+
+        return multipliedPoints;
+      }
+
+      resetCombo() {
+        this.combo = 1;
+        this.updateComboDisplay();
+        sound.playError();
+      }
+
+      updateComboDisplay() {
+        const badge = document.getElementById('gameComboBadge');
+        if (!badge) return;
+        if (this.combo > 1) {
+          badge.textContent = `🔥 COMBO x${this.combo}`;
+          badge.classList.remove('opacity-0');
+        } else {
+          badge.classList.add('opacity-0');
+        }
+      }
+
+      showFloatingText(text, color = '#22C55E') {
+        const workspace = document.getElementById('challengeWorkspace');
+        if (!workspace) return;
+        const floatEl = document.createElement('div');
+        floatEl.className = 'floating-score';
+        floatEl.style.color = color;
+        floatEl.style.top = '40%';
+        floatEl.style.left = '50%';
+        floatEl.textContent = text;
+        workspace.appendChild(floatEl);
+
+        setTimeout(() => floatEl.remove(), 800);
+      }
+
+      handleRoundTimeout() {
+        if (!this.isRoundActive) return;
+        this.isRoundActive = false;
+        this.stopTimer();
+
+        const workspace = document.getElementById('challengeWorkspace');
+        if (workspace) workspace.style.pointerEvents = 'none';
+
+        sound.playTimeOut();
+        const feedbackEl = document.getElementById('challengeFeedback');
+        if (feedbackEl) feedbackEl.textContent = '⏱ Tempo Esgotado!';
+
+        this.setTimeoutTracked(() => {
+          this.nextRound();
+        }, 1000);
+      }
+
+      handleRoundFailure(msg = '❌ Falhou!') {
+        if (!this.isRoundActive) return;
+        this.isRoundActive = false;
+        this.stopTimer();
+
+        const workspace = document.getElementById('challengeWorkspace');
+        if (workspace) workspace.style.pointerEvents = 'none';
+
+        this.resetCombo();
+
+        const feedbackEl = document.getElementById('challengeFeedback');
+        if (feedbackEl) feedbackEl.textContent = msg;
+
+        this.setTimeoutTracked(() => {
+          this.nextRound();
+        }, 1000);
+      }
+
+      completeRoundSuccessfully(bonusPoints = 200) {
+        if (!this.isRoundActive) return;
+        this.isRoundActive = false;
+        this.stopTimer();
+
+        const workspace = document.getElementById('challengeWorkspace');
+        if (workspace) workspace.style.pointerEvents = 'none';
+
+        const speedBonus = Math.round(parseFloat(this.timeLeft) * 25);
+        const earned = this.addScore(bonusPoints + speedBonus, 1);
+        
+        if (earned >= 1200) this.unlockAchievement('perfectRound');
+
+        const feedbackEl = document.getElementById('challengeFeedback');
+        if (feedbackEl) feedbackEl.textContent = `✨ Perfeito! +${earned} pts`;
+        
+        this.setTimeoutTracked(() => {
+          this.nextRound();
+        }, 1200);
+      }
+
+      /* ================= MINIGAMES LOGIC ================= */
+      initMinigameLogic(key, container) {
+        switch (key) {
+          case 'fastClick':
+            this.setupFastClick(container);
+            break;
+          case 'oddOneOut':
+            this.setupOddOneOut(container);
+            break;
+          case 'memorySeq':
+            this.setupMemorySeq(container);
+            break;
+          case 'targetShoot':
+            this.setupTargetShoot(container);
+            break;
+          case 'ascendingOrder':
+            this.setupAscendingOrder(container);
+            break;
+          case 'dontClick':
+            this.setupDontClick(container);
+            break;
+          case 'reactionTest':
+            this.setupReactionTest(container);
+            break;
+          case 'sequenceRecall':
+            this.setupSequenceRecall(container);
+            break;
+        }
+      }
+
+      // 1. FAST CLICK
+      setupFastClick(container) {
+        let clicks = 0;
+        container.innerHTML = `
           <div class="text-center">
             <button id="btnFastClick" class="btn-press w-40 h-40 md:w-48 md:h-48 rounded-full bg-[#1677FF] hover:bg-[#123B68] text-white font-black text-2xl shadow-xl flex flex-col items-center justify-center border-4 border-blue-200">
               <span>CLIQUE!</span>
@@ -1336,77 +1225,77 @@
           </div>
         `;
 
-                const btn = document.getElementById('btnFastClick');
-                const counter = document.getElementById('fastClickCounter');
+        const btn = document.getElementById('btnFastClick');
+        const counter = document.getElementById('fastClickCounter');
 
-                if (btn) {
-                    btn.addEventListener('click', () => {
-                        if (!this.isRoundActive) return;
-                        clicks++;
-                        if (counter) counter.textContent = clicks;
-                        sound.playClick();
-                        this.addScore(15, 1);
-                    });
-                }
-            }
+        if (btn) {
+          btn.addEventListener('click', () => {
+            if (!this.isRoundActive) return;
+            clicks++;
+            if (counter) counter.textContent = clicks;
+            sound.playClick();
+            this.addScore(15, 1);
+          });
+        }
+      }
 
-            // 2. ODD ONE OUT
-            setupOddOneOut(container) {
-                const sets = [
-                    {normal: '⭐', odd: '🌟'},
-                    {normal: '⚽', odd: '🏀'},
-                    {normal: '🍎', odd: '🍏'},
-                    {normal: '🔴', odd: '🟠'},
-                    {normal: '🐱', odd: '🐶'}
-                ];
+      // 2. ODD ONE OUT
+      setupOddOneOut(container) {
+        const sets = [
+          { normal: '⭐', odd: '🌟' },
+          { normal: '⚽', odd: '🏀' },
+          { normal: '🍎', odd: '🍏' },
+          { normal: '🔴', odd: '🟠' },
+          { normal: '🐱', odd: '🐶' }
+        ];
 
-                const chosen = sets[Math.floor(Math.random() * sets.length)];
-                const totalItems = 16; // 4x4
-                const oddIndex = Math.floor(Math.random() * totalItems);
+        const chosen = sets[Math.floor(Math.random() * sets.length)];
+        const totalItems = 16; // 4x4
+        const oddIndex = Math.floor(Math.random() * totalItems);
 
-                let gridHTML = '<div class="grid grid-cols-4 gap-3 max-w-xs mx-auto">';
-                for (let i = 0; i < totalItems; i++) {
-                    const char = (i === oddIndex) ? chosen.odd : chosen.normal;
-                    gridHTML += `
+        let gridHTML = '<div class="grid grid-cols-4 gap-3 max-w-xs mx-auto">';
+        for (let i = 0; i < totalItems; i++) {
+          const char = (i === oddIndex) ? chosen.odd : chosen.normal;
+          gridHTML += `
             <button data-index="${i}" class="odd-btn btn-press text-3xl md:text-4xl p-3 bg-slate-100 hover:bg-slate-200 rounded-2xl border border-slate-200 flex items-center justify-center">
               ${char}
             </button>
           `;
-                }
-                gridHTML += '</div>';
-                container.innerHTML = gridHTML;
+        }
+        gridHTML += '</div>';
+        container.innerHTML = gridHTML;
 
-                container.querySelectorAll('.odd-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        if (!this.isRoundActive) return;
-                        const idx = parseInt(btn.getAttribute('data-index'));
-                        if (idx === oddIndex) {
-                            btn.classList.add('bg-green-200');
-                            this.completeRoundSuccessfully(350);
-                        } else {
-                            btn.classList.add('bg-red-200');
-                            this.resetCombo();
-                        }
-                    });
-                });
+        container.querySelectorAll('.odd-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (!this.isRoundActive) return;
+            const idx = parseInt(btn.getAttribute('data-index'));
+            if (idx === oddIndex) {
+              btn.classList.add('bg-green-200');
+              this.completeRoundSuccessfully(350);
+            } else {
+              btn.classList.add('bg-red-200');
+              this.resetCombo();
             }
+          });
+        });
+      }
 
-            // 3. MEMORY SEQUENCE (Fixed and robust!)
-            setupMemorySeq(container) {
-                const colors = [
-                    {name: 'Red', bg: 'bg-red-500', hex: '#EF4444'},
-                    {name: 'Blue', bg: 'bg-blue-500', hex: '#1677FF'},
-                    {name: 'Green', bg: 'bg-green-500', hex: '#22C55E'},
-                    {name: 'Yellow', bg: 'bg-amber-400', hex: '#F59E0B'}
-                ];
+      // 3. MEMORY SEQUENCE (Fixed and robust!)
+      setupMemorySeq(container) {
+        const colors = [
+          { name: 'Red', bg: 'bg-red-500', hex: '#EF4444' },
+          { name: 'Blue', bg: 'bg-blue-500', hex: '#1677FF' },
+          { name: 'Green', bg: 'bg-green-500', hex: '#22C55E' },
+          { name: 'Yellow', bg: 'bg-amber-400', hex: '#F59E0B' }
+        ];
 
-                const seqLength = this.currentRound > 6 ? 4 : 3;
-                const generatedSeq = [];
-                for (let i = 0; i < seqLength; i++) {
-                    generatedSeq.push(Math.floor(Math.random() * 4));
-                }
+        const seqLength = this.currentRound > 6 ? 4 : 3;
+        const generatedSeq = [];
+        for (let i = 0; i < seqLength; i++) {
+          generatedSeq.push(Math.floor(Math.random() * 4));
+        }
 
-                container.innerHTML = `
+        container.innerHTML = `
           <div class="flex flex-col items-center">
             <div id="memoryDisplay" class="flex gap-2 mb-6 min-h-[60px] items-center"></div>
             <div id="memoryControls" class="grid grid-cols-2 gap-3 w-48 opacity-30 pointer-events-none">
@@ -1417,54 +1306,54 @@
           </div>
         `;
 
-                const display = document.getElementById('memoryDisplay');
-                const controls = document.getElementById('memoryControls');
+        const display = document.getElementById('memoryDisplay');
+        const controls = document.getElementById('memoryControls');
 
-                if (display) {
-                    generatedSeq.forEach(cIdx => {
-                        const colorObj = colors[cIdx];
-                        display.innerHTML += `<div class="w-10 h-10 rounded-xl ${colorObj.bg} animate-pop-in"></div>`;
-                    });
-                }
+        if (display) {
+          generatedSeq.forEach(cIdx => {
+            const colorObj = colors[cIdx];
+            display.innerHTML += `<div class="w-10 h-10 rounded-xl ${colorObj.bg} animate-pop-in"></div>`;
+          });
+        }
 
-                let playerSeq = [];
+        let playerSeq = [];
 
-                this.setTimeoutTracked(() => {
-                    if (!this.isRoundActive) return;
-                    const disp = document.getElementById('memoryDisplay');
-                    const ctrl = document.getElementById('memoryControls');
-                    if (disp) disp.innerHTML = '<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sua vez! Repita a ordem</span>';
-                    if (ctrl) ctrl.classList.remove('opacity-30', 'pointer-events-none');
-                }, 1600);
+        this.setTimeoutTracked(() => {
+          if (!this.isRoundActive) return;
+          const disp = document.getElementById('memoryDisplay');
+          const ctrl = document.getElementById('memoryControls');
+          if (disp) disp.innerHTML = '<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sua vez! Repita a ordem</span>';
+          if (ctrl) ctrl.classList.remove('opacity-30', 'pointer-events-none');
+        }, 1600);
 
-                if (controls) {
-                    controls.querySelectorAll('.mem-btn').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            if (!this.isRoundActive) return;
-                            const cIdx = parseInt(btn.getAttribute('data-color'));
-                            sound.playClick();
-                            playerSeq.push(cIdx);
+        if (controls) {
+          controls.querySelectorAll('.mem-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              if (!this.isRoundActive) return;
+              const cIdx = parseInt(btn.getAttribute('data-color'));
+              sound.playClick();
+              playerSeq.push(cIdx);
 
-                            const currentStep = playerSeq.length - 1;
-                            if (playerSeq[currentStep] !== generatedSeq[currentStep]) {
-                                this.resetCombo();
-                                playerSeq = [];
-                                const fb = document.getElementById('challengeFeedback');
-                                if (fb) fb.textContent = '❌ Errou! Recomece a sequência!';
-                                return;
-                            }
+              const currentStep = playerSeq.length - 1;
+              if (playerSeq[currentStep] !== generatedSeq[currentStep]) {
+                this.resetCombo();
+                playerSeq = [];
+                const fb = document.getElementById('challengeFeedback');
+                if (fb) fb.textContent = '❌ Errou! Recomece a sequência!';
+                return;
+              }
 
-                            if (playerSeq.length === generatedSeq.length) {
-                                this.completeRoundSuccessfully(400);
-                            }
-                        });
-                    });
-                }
-            }
+              if (playerSeq.length === generatedSeq.length) {
+                this.completeRoundSuccessfully(400);
+              }
+            });
+          });
+        }
+      }
 
-            // 4. TARGET SHOOT
-            setupTargetShoot(container) {
-                container.innerHTML = `
+      // 4. TARGET SHOOT
+      setupTargetShoot(container) {
+        container.innerHTML = `
           <div id="targetArena" class="w-full h-64 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 relative overflow-hidden">
             <button id="movingTarget" class="absolute w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#EF4444] text-white flex items-center justify-center text-xl shadow-lg border-2 border-white transition-all duration-150">
               🎯
@@ -1472,48 +1361,48 @@
           </div>
         `;
 
-                const arena = document.getElementById('targetArena');
-                const target = document.getElementById('movingTarget');
-                let hits = 0;
-                const targetGoal = 5;
+        const arena = document.getElementById('targetArena');
+        const target = document.getElementById('movingTarget');
+        let hits = 0;
+        const targetGoal = 5;
 
-                const move = () => {
-                    if (!arena || !target) return;
-                    const maxX = Math.max(20, arena.clientWidth - 60);
-                    const maxY = Math.max(20, arena.clientHeight - 60);
-                    const randomX = Math.max(10, Math.floor(Math.random() * maxX));
-                    const randomY = Math.max(10, Math.floor(Math.random() * maxY));
-                    target.style.left = `${randomX}px`;
-                    target.style.top = `${randomY}px`;
-                };
+        const move = () => {
+          if (!arena || !target) return;
+          const maxX = Math.max(20, arena.clientWidth - 60);
+          const maxY = Math.max(20, arena.clientHeight - 60);
+          const randomX = Math.max(10, Math.floor(Math.random() * maxX));
+          const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+          target.style.left = `${randomX}px`;
+          target.style.top = `${randomY}px`;
+        };
 
-                move();
+        move();
 
-                if (target) {
-                    target.addEventListener('click', () => {
-                        if (!this.isRoundActive) return;
-                        hits++;
-                        this.addScore(60, 1);
-                        sound.playClick();
+        if (target) {
+          target.addEventListener('click', () => {
+            if (!this.isRoundActive) return;
+            hits++;
+            this.addScore(60, 1);
+            sound.playClick();
 
-                        if (hits >= targetGoal) {
-                            this.completeRoundSuccessfully(200);
-                        } else {
-                            move();
-                        }
-                    });
-                }
+            if (hits >= targetGoal) {
+              this.completeRoundSuccessfully(200);
+            } else {
+              move();
             }
+          });
+        }
+      }
 
-            // 5. ASCENDING ORDER
-            setupAscendingOrder(container) {
-                const count = 5;
-                const numbers = [1, 2, 3, 4, 5];
-                const shuffled = [...numbers].sort(() => Math.random() - 0.5);
+      // 5. ASCENDING ORDER
+      setupAscendingOrder(container) {
+        const count = 5;
+        const numbers = [1, 2, 3, 4, 5];
+        const shuffled = [...numbers].sort(() => Math.random() - 0.5);
 
-                let nextExpected = 1;
+        let nextExpected = 1;
 
-                container.innerHTML = `
+        container.innerHTML = `
           <div class="flex flex-col items-center">
             <p class="text-xs font-bold text-slate-400 mb-4">Clique no número: <span id="nextNumTarget" class="text-lg text-[#1677FF] font-black">1</span></p>
             <div class="flex flex-wrap justify-center gap-3 max-w-xs">
@@ -1526,30 +1415,30 @@
           </div>
         `;
 
-                container.querySelectorAll('.num-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        if (!this.isRoundActive) return;
-                        const num = parseInt(btn.getAttribute('data-num'));
-                        if (num === nextExpected) {
-                            sound.playClick();
-                            btn.classList.add('opacity-0', 'pointer-events-none');
-                            nextExpected++;
-                            if (nextExpected > count) {
-                                this.completeRoundSuccessfully(300);
-                            } else {
-                                const targetEl = document.getElementById('nextNumTarget');
-                                if (targetEl) targetEl.textContent = nextExpected;
-                            }
-                        } else {
-                            this.resetCombo();
-                        }
-                    });
-                });
+        container.querySelectorAll('.num-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (!this.isRoundActive) return;
+            const num = parseInt(btn.getAttribute('data-num'));
+            if (num === nextExpected) {
+              sound.playClick();
+              btn.classList.add('opacity-0', 'pointer-events-none');
+              nextExpected++;
+              if (nextExpected > count) {
+                this.completeRoundSuccessfully(300);
+              } else {
+                const targetEl = document.getElementById('nextNumTarget');
+                if (targetEl) targetEl.textContent = nextExpected;
+              }
+            } else {
+              this.resetCombo();
             }
+          });
+        });
+      }
 
-            // 6. DON'T CLICK!
-            setupDontClick(container) {
-                container.innerHTML = `
+      // 6. DON'T CLICK!
+      setupDontClick(container) {
+        container.innerHTML = `
           <div class="text-center">
             <div class="mb-4 inline-block px-3 py-1 rounded-full bg-blue-100 text-[#1677FF] font-bold text-xs">
               CLIQUE NOS AZUIS 🔵 • NÃO CLIQUE NO VERMELHO 🔴
@@ -1558,111 +1447,111 @@
           </div>
         `;
 
-                const grid = document.getElementById('dontClickGrid');
-                let totalValidCleared = 0;
-                const goal = 4;
+        const grid = document.getElementById('dontClickGrid');
+        let totalValidCleared = 0;
+        const goal = 4;
 
-                if (grid) {
-                    const items = ['🔵', '🔵', '🔴', '🔵', '🔴', '🔵'];
-                    items.sort(() => Math.random() - 0.5);
+        if (grid) {
+          const items = ['🔵', '🔵', '🔴', '🔵', '🔴', '🔵'];
+          items.sort(() => Math.random() - 0.5);
 
-                    items.forEach(item => {
-                        const btn = document.createElement('button');
-                        btn.className = 'btn-press text-3xl p-4 bg-slate-100 rounded-2xl border border-slate-200';
-                        btn.textContent = item;
-                        btn.addEventListener('click', () => {
-                            if (!this.isRoundActive) return;
-                            if (item === '🔵') {
-                                totalValidCleared++;
-                                this.addScore(80, 1);
-                                btn.classList.add('bg-green-100', 'pointer-events-none');
-                                btn.textContent = '✅';
-                                if (totalValidCleared >= goal) {
-                                    this.completeRoundSuccessfully(200);
-                                }
-                            } else {
-                                this.resetCombo();
-                                btn.classList.add('bg-red-200');
-                                const fb = document.getElementById('challengeFeedback');
-                                if (fb) fb.textContent = '⚠️ Você clicou no vermelho!';
-                            }
-                        });
-                        grid.appendChild(btn);
-                    });
+          items.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-press text-3xl p-4 bg-slate-100 rounded-2xl border border-slate-200';
+            btn.textContent = item;
+            btn.addEventListener('click', () => {
+              if (!this.isRoundActive) return;
+              if (item === '🔵') {
+                totalValidCleared++;
+                this.addScore(80, 1);
+                btn.classList.add('bg-green-100', 'pointer-events-none');
+                btn.textContent = '✅';
+                if (totalValidCleared >= goal) {
+                  this.completeRoundSuccessfully(200);
                 }
-            }
+              } else {
+                this.resetCombo();
+                btn.classList.add('bg-red-200');
+                const fb = document.getElementById('challengeFeedback');
+                if (fb) fb.textContent = '⚠️ Você clicou no vermelho!';
+              }
+            });
+            grid.appendChild(btn);
+          });
+        }
+      }
 
-            // 7. REACTION TEST
-            setupReactionTest(container) {
-                container.innerHTML = `
+      // 7. REACTION TEST
+      setupReactionTest(container) {
+        container.innerHTML = `
           <div id="reactionBox" class="w-full h-56 rounded-3xl bg-red-500 text-white font-black text-xl flex flex-col items-center justify-center cursor-pointer transition-colors shadow-lg">
             <span id="reactionStatus">AGUARDE O VERDE...</span>
             <span class="text-xs font-normal opacity-80 mt-2">Não clique ainda!</span>
           </div>
         `;
 
-                const box = document.getElementById('reactionBox');
-                let ready = false;
-                let startTime = 0;
+        const box = document.getElementById('reactionBox');
+        let ready = false;
+        let startTime = 0;
 
-                const delay = 1500 + Math.random() * 2500;
+        const delay = 1500 + Math.random() * 2500;
 
-                this.setTimeoutTracked(() => {
-                    if (!this.isRoundActive) return;
-                    ready = true;
-                    const rBox = document.getElementById('reactionBox');
-                    const status = document.getElementById('reactionStatus');
-                    if (rBox) {
-                        rBox.classList.remove('bg-red-500');
-                        rBox.classList.add('bg-green-500');
-                    }
-                    if (status) status.textContent = 'CLIQUE AGORA!!!';
-                    startTime = Date.now();
-                }, delay);
+        this.setTimeoutTracked(() => {
+          if (!this.isRoundActive) return;
+          ready = true;
+          const rBox = document.getElementById('reactionBox');
+          const status = document.getElementById('reactionStatus');
+          if (rBox) {
+            rBox.classList.remove('bg-red-500');
+            rBox.classList.add('bg-green-500');
+          }
+          if (status) status.textContent = 'CLIQUE AGORA!!!';
+          startTime = Date.now();
+        }, delay);
 
-                if (box) {
-                    box.addEventListener('click', () => {
-                        if (!this.isRoundActive) return;
-                        if (!ready) {
-                            const status = document.getElementById('reactionStatus');
-                            if (status) status.textContent = 'MUITO CEDO!';
-                            this.handleRoundFailure('⚠️ Clique muito cedo!');
-                        } else {
-                            const reactionMs = (Date.now() - startTime) / 1000;
-                            if (reactionMs < this.bestReactionTime) {
-                                this.bestReactionTime = reactionMs;
-                            }
+        if (box) {
+          box.addEventListener('click', () => {
+            if (!this.isRoundActive) return;
+            if (!ready) {
+              const status = document.getElementById('reactionStatus');
+              if (status) status.textContent = 'MUITO CEDO!';
+              this.handleRoundFailure('⚠️ Clique muito cedo!');
+            } else {
+              const reactionMs = (Date.now() - startTime) / 1000;
+              if (reactionMs < this.bestReactionTime) {
+                this.bestReactionTime = reactionMs;
+              }
 
-                            if (reactionMs <= 0.5) {
-                                this.unlockAchievement('lightning');
-                            }
+              if (reactionMs <= 0.5) {
+                this.unlockAchievement('lightning');
+              }
 
-                            const fb = document.getElementById('challengeFeedback');
-                            if (fb) fb.textContent = `⚡ Tempo: ${reactionMs.toFixed(2)}s`;
-                            this.completeRoundSuccessfully(Math.max(100, Math.round(500 - reactionMs * 400)));
-                        }
-                    });
-                }
+              const fb = document.getElementById('challengeFeedback');
+              if (fb) fb.textContent = `⚡ Tempo: ${reactionMs.toFixed(2)}s`;
+              this.completeRoundSuccessfully(Math.max(100, Math.round(500 - reactionMs * 400)));
             }
+          });
+        }
+      }
 
-            // 8. SEQUENCE RECALL
-            setupSequenceRecall(container) {
-                const sequences = [
-                    ['🔵', '🟡', '🔴', '🟢'],
-                    ['⚽', '🏀', '🏈', '🎾'],
-                    ['⭐', '🔥', '💎', '🚀']
-                ];
+      // 8. SEQUENCE RECALL
+      setupSequenceRecall(container) {
+        const sequences = [
+          ['🔵', '🟡', '🔴', '🟢'],
+          ['⚽', '🏀', '🏈', '🎾'],
+          ['⭐', '🔥', '💎', '🚀']
+        ];
 
-                const chosenSeq = sequences[Math.floor(Math.random() * sequences.length)];
-                const correctStr = chosenSeq.join(' ');
+        const chosenSeq = sequences[Math.floor(Math.random() * sequences.length)];
+        const correctStr = chosenSeq.join(' ');
 
-                const wrong1 = [...chosenSeq].reverse().join(' ');
-                const wrong2 = [chosenSeq[1], chosenSeq[0], chosenSeq[3], chosenSeq[2]].join(' ');
-                const wrong3 = [chosenSeq[2], chosenSeq[3], chosenSeq[0], chosenSeq[1]].join(' ');
+        const wrong1 = [...chosenSeq].reverse().join(' ');
+        const wrong2 = [chosenSeq[1], chosenSeq[0], chosenSeq[3], chosenSeq[2]].join(' ');
+        const wrong3 = [chosenSeq[2], chosenSeq[3], chosenSeq[0], chosenSeq[1]].join(' ');
 
-                const options = [correctStr, wrong1, wrong2, wrong3].sort(() => Math.random() - 0.5);
+        const options = [correctStr, wrong1, wrong2, wrong3].sort(() => Math.random() - 0.5);
 
-                container.innerHTML = `
+        container.innerHTML = `
           <div class="text-center w-full max-w-sm">
             <div id="seqFlash" class="text-3xl tracking-widest font-bold bg-slate-100 p-4 rounded-2xl mb-4 border border-slate-200">
               ${correctStr}
@@ -1678,159 +1567,159 @@
           </div>
         `;
 
-                this.setTimeoutTracked(() => {
-                    if (!this.isRoundActive) return;
-                    const flash = document.getElementById('seqFlash');
-                    const opts = document.getElementById('seqOptions');
-                    if (flash) flash.textContent = '❓ ❓ ❓ ❓';
-                    if (opts) opts.classList.remove('hidden');
-                }, 1800);
+        this.setTimeoutTracked(() => {
+          if (!this.isRoundActive) return;
+          const flash = document.getElementById('seqFlash');
+          const opts = document.getElementById('seqOptions');
+          if (flash) flash.textContent = '❓ ❓ ❓ ❓';
+          if (opts) opts.classList.remove('hidden');
+        }, 1800);
 
-                container.querySelectorAll('.opt-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        if (!this.isRoundActive) return;
-                        const chosen = btn.getAttribute('data-opt');
-                        if (chosen === correctStr) {
-                            this.completeRoundSuccessfully(350);
-                        } else {
-                            this.handleRoundFailure('❌ Sequência Incorreta!');
-                        }
-                    });
-                });
+        container.querySelectorAll('.opt-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (!this.isRoundActive) return;
+            const chosen = btn.getAttribute('data-opt');
+            if (chosen === correctStr) {
+              this.completeRoundSuccessfully(350);
+            } else {
+              this.handleRoundFailure('❌ Sequência Incorreta!');
             }
+          });
+        });
+      }
 
-            /* ================= MATCH END & RECORDS ================= */
-            finishMatch() {
-                this.stopTimer();
-                this.clearAllTrackedTimeouts();
-                this.isRoundActive = false;
-                this.records.totalGames++;
+      /* ================= MATCH END & RECORDS ================= */
+      finishMatch() {
+        this.stopTimer();
+        this.clearAllTrackedTimeouts();
+        this.isRoundActive = false;
+        this.records.totalGames++;
 
-                let isNewRecord = false;
-                if (this.totalScore > this.records.highScore) {
-                    this.records.highScore = this.totalScore;
-                    isNewRecord = true;
-                    sound.playRecordFanfare();
-                    if (typeof confetti === 'function') {
-                        confetti({particleCount: 100, spread: 70, origin: {y: 0.6}});
-                    }
-                }
+        let isNewRecord = false;
+        if (this.totalScore > this.records.highScore) {
+          this.records.highScore = this.totalScore;
+          isNewRecord = true;
+          sound.playRecordFanfare();
+          if (typeof confetti === 'function') {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          }
+        }
 
-                if (this.maxCombo > this.records.maxCombo) {
-                    this.records.maxCombo = this.maxCombo;
-                }
+        if (this.maxCombo > this.records.maxCombo) {
+          this.records.maxCombo = this.maxCombo;
+        }
 
-                if (this.bestReactionTime !== Infinity) {
-                    if (!this.records.bestReaction || this.bestReactionTime < this.records.bestReaction) {
-                        this.records.bestReaction = this.bestReactionTime;
-                    }
-                }
+        if (this.bestReactionTime !== Infinity) {
+          if (!this.records.bestReaction || this.bestReactionTime < this.records.bestReaction) {
+            this.records.bestReaction = this.bestReactionTime;
+          }
+        }
 
-                if (this.records.totalGames >= 5) {
-                    this.unlockAchievement('unstoppable');
-                }
+        if (this.records.totalGames >= 5) {
+          this.unlockAchievement('unstoppable');
+        }
 
-                localStorage.setItem('b10s_records', JSON.stringify(this.records));
+        localStorage.setItem('b10s_records', JSON.stringify(this.records));
 
-                this.updateLeaderboardEntry();
+        this.updateLeaderboardEntry();
 
-                const resPlayerName = document.getElementById('resultPlayerName');
-                if (resPlayerName) resPlayerName.textContent = this.playerName;
+        const resPlayerName = document.getElementById('resultPlayerName');
+        if (resPlayerName) resPlayerName.textContent = this.playerName;
 
-                const resTotalScore = document.getElementById('resultTotalScore');
-                if (resTotalScore) resTotalScore.textContent = this.totalScore.toLocaleString('pt-BR');
+        const resTotalScore = document.getElementById('resultTotalScore');
+        if (resTotalScore) resTotalScore.textContent = this.totalScore.toLocaleString('pt-BR');
 
-                const resHits = document.getElementById('resultHits');
-                if (resHits) resHits.textContent = this.totalHits;
+        const resHits = document.getElementById('resultHits');
+        if (resHits) resHits.textContent = this.totalHits;
 
-                const resMaxCombo = document.getElementById('resultMaxCombo');
-                if (resMaxCombo) resMaxCombo.textContent = `x${this.maxCombo}`;
+        const resMaxCombo = document.getElementById('resultMaxCombo');
+        if (resMaxCombo) resMaxCombo.textContent = `x${this.maxCombo}`;
 
-                const resBestReaction = document.getElementById('resultBestReaction');
-                if (resBestReaction) resBestReaction.textContent = (this.bestReactionTime !== Infinity) ? `${this.bestReactionTime.toFixed(2)}s` : '--';
+        const resBestReaction = document.getElementById('resultBestReaction');
+        if (resBestReaction) resBestReaction.textContent = (this.bestReactionTime !== Infinity) ? `${this.bestReactionTime.toFixed(2)}s` : '--';
 
-                const recordBadge = document.getElementById('resultRecordBadge');
-                if (recordBadge) {
-                    if (isNewRecord) {
-                        recordBadge.classList.remove('hidden');
-                    } else {
-                        recordBadge.classList.add('hidden');
-                    }
-                }
+        const recordBadge = document.getElementById('resultRecordBadge');
+        if (recordBadge) {
+          if (isNewRecord) {
+            recordBadge.classList.remove('hidden');
+          } else {
+            recordBadge.classList.add('hidden');
+          }
+        }
 
-                this.calculateAndDisplayPosition();
-                this.showScreen('results');
-            }
+        this.calculateAndDisplayPosition();
+        this.showScreen('results');
+      }
 
-            updateLeaderboardEntry() {
-                let entry = this.leaderboard.find(item => item.name.toLowerCase() === this.playerName.toLowerCase());
+      updateLeaderboardEntry() {
+        let entry = this.leaderboard.find(item => item.name.toLowerCase() === this.playerName.toLowerCase());
+        
+        if (entry) {
+          if (this.totalScore > entry.score) entry.score = this.totalScore;
+          if (this.maxCombo > entry.maxCombo) entry.maxCombo = this.maxCombo;
+          if (this.bestReactionTime !== Infinity && (!entry.fastestReaction || this.bestReactionTime < entry.fastestReaction)) {
+            entry.fastestReaction = this.bestReactionTime;
+          }
+        } else {
+          entry = {
+            name: this.playerName,
+            score: this.totalScore,
+            wins: 0,
+            bestRound: Math.round(this.totalScore / 10),
+            fastestReaction: this.bestReactionTime !== Infinity ? this.bestReactionTime : 0.6,
+            maxCombo: this.maxCombo
+          };
+          this.leaderboard.push(entry);
+        }
 
-                if (entry) {
-                    if (this.totalScore > entry.score) entry.score = this.totalScore;
-                    if (this.maxCombo > entry.maxCombo) entry.maxCombo = this.maxCombo;
-                    if (this.bestReactionTime !== Infinity && (!entry.fastestReaction || this.bestReactionTime < entry.fastestReaction)) {
-                        entry.fastestReaction = this.bestReactionTime;
-                    }
-                } else {
-                    entry = {
-                        name: this.playerName,
-                        score: this.totalScore,
-                        wins: 0,
-                        bestRound: Math.round(this.totalScore / 10),
-                        fastestReaction: this.bestReactionTime !== Infinity ? this.bestReactionTime : 0.6,
-                        maxCombo: this.maxCombo
-                    };
-                    this.leaderboard.push(entry);
-                }
+        this.leaderboard.sort((a, b) => b.score - a.score);
 
-                this.leaderboard.sort((a, b) => b.score - a.score);
+        if (this.leaderboard[0] && this.leaderboard[0].name.toLowerCase() === this.playerName.toLowerCase()) {
+          entry.wins = (entry.wins || 0) + 1;
+          this.unlockAchievement('champion');
+        }
 
-                if (this.leaderboard[0] && this.leaderboard[0].name.toLowerCase() === this.playerName.toLowerCase()) {
-                    entry.wins = (entry.wins || 0) + 1;
-                    this.unlockAchievement('champion');
-                }
+        localStorage.setItem('b10s_leaderboard', JSON.stringify(this.leaderboard));
+      }
 
-                localStorage.setItem('b10s_leaderboard', JSON.stringify(this.leaderboard));
-            }
+      calculateAndDisplayPosition() {
+        const sorted = [...this.leaderboard].sort((a, b) => b.score - a.score);
+        const index = sorted.findIndex(item => item.name.toLowerCase() === this.playerName.toLowerCase());
+        const rank = index + 1;
 
-            calculateAndDisplayPosition() {
-                const sorted = [...this.leaderboard].sort((a, b) => b.score - a.score);
-                const index = sorted.findIndex(item => item.name.toLowerCase() === this.playerName.toLowerCase());
-                const rank = index + 1;
+        const posEl = document.getElementById('resultRankPosition');
+        const diffEl = document.getElementById('resultRankDifference');
 
-                const posEl = document.getElementById('resultRankPosition');
-                const diffEl = document.getElementById('resultRankDifference');
+        if (posEl) posEl.textContent = `#${rank}º LUGAR`;
 
-                if (posEl) posEl.textContent = `#${rank}º LUGAR`;
+        if (diffEl) {
+          if (rank === 1) {
+            diffEl.textContent = '👑 Você lidera o ranking geral da turma!';
+          } else if (rank > 1 && sorted[rank - 2]) {
+            const diff = sorted[rank - 2].score - this.totalScore;
+            diffEl.textContent = `Faltam apenas ${diff.toLocaleString('pt-BR')} pontos para alcançar o #${rank - 1}º!`;
+          }
+        }
+      }
 
-                if (diffEl) {
-                    if (rank === 1) {
-                        diffEl.textContent = '👑 Você lidera o ranking geral da turma!';
-                    } else if (rank > 1 && sorted[rank - 2]) {
-                        const diff = sorted[rank - 2].score - this.totalScore;
-                        diffEl.textContent = `Faltam apenas ${diff.toLocaleString('pt-BR')} pontos para alcançar o #${rank - 1}º!`;
-                    }
-                }
-            }
+      /* ================= ACHIEVEMENTS & LEADERBOARD ================= */
+      unlockAchievement(id) {
+        if (this.unlockedAchievements.has(id)) return;
+        this.unlockedAchievements.add(id);
+        localStorage.setItem('b10s_achievements', JSON.stringify(Array.from(this.unlockedAchievements)));
 
-            /* ================= ACHIEVEMENTS & LEADERBOARD ================= */
-            unlockAchievement(id) {
-                if (this.unlockedAchievements.has(id)) return;
-                this.unlockedAchievements.add(id);
-                localStorage.setItem('b10s_achievements', JSON.stringify(Array.from(this.unlockedAchievements)));
+        const ach = this.achievementsList.find(a => a.id === id);
+        if (ach) {
+          this.showAchievementToast(ach);
+        }
+      }
 
-                const ach = this.achievementsList.find(a => a.id === id);
-                if (ach) {
-                    this.showAchievementToast(ach);
-                }
-            }
-
-            showAchievementToast(ach) {
-                const container = document.getElementById('toastContainer');
-                if (!container) return;
-                const toast = document.createElement('div');
-                toast.className = 'bg-[#0B1F3A] text-white px-4 py-3 rounded-2xl shadow-2xl border border-[#1677FF] flex items-center gap-3 animate-pop-in pointer-events-auto';
-                toast.innerHTML = `
+      showAchievementToast(ach) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'bg-[#0B1F3A] text-white px-4 py-3 rounded-2xl shadow-2xl border border-[#1677FF] flex items-center gap-3 animate-pop-in pointer-events-auto';
+        toast.innerHTML = `
           <div class="w-10 h-10 rounded-xl bg-[#1677FF] flex items-center justify-center text-lg text-amber-300">
             <i class="fa-solid ${ach.icon}"></i>
           </div>
@@ -1839,71 +1728,85 @@
             <p class="text-sm font-extrabold text-white">${ach.name}</p>
           </div>
         `;
-                container.appendChild(toast);
-                sound.playRecordFanfare();
+        container.appendChild(toast);
+        sound.playRecordFanfare();
 
-                setTimeout(() => toast.remove(), 4000);
-            }
+        setTimeout(() => toast.remove(), 4000);
+      }
 
-            switchRankingCategory(category) {
-                ['Score', 'Fastest', 'Combo', 'Wins', 'Round'].forEach(cat => {
-                    const btn = document.getElementById(`tabRank${cat}`);
-                    if (btn) {
-                        btn.className = 'px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap';
-                    }
-                });
+      switchRankingCategory(category) {
+        ['Score', 'Fastest', 'Combo', 'Wins', 'Round'].forEach(cat => {
+          const btn = document.getElementById(`tabRank${cat}`);
+          if (btn) {
+            btn.className = 'px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 whitespace-nowrap';
+          }
+        });
 
-                const activeBtn = document.getElementById(`tabRank${category.charAt(0).toUpperCase() + category.slice(1)}`);
-                if (activeBtn) {
-                    activeBtn.className = 'px-3.5 py-2 rounded-xl bg-[#0B1F3A] text-white whitespace-nowrap shadow-sm';
-                }
+        const activeBtn = document.getElementById(`tabRank${category.charAt(0).toUpperCase() + category.slice(1)}`);
+        if (activeBtn) {
+          activeBtn.className = 'px-3.5 py-2 rounded-xl bg-[#0B1F3A] text-white whitespace-nowrap shadow-sm';
+        }
 
-                this.renderRanking(category);
-            }
+        this.renderRanking(category);
+      }
 
-            renderRanking(category = 'score') {
-                const tbody = document.getElementById('rankingTableBody');
-                if (!tbody) return;
-                tbody.innerHTML = '';
+      renderRanking(category = 'score') {
+        const tbody = document.getElementById('rankingTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
 
-                let list = [...this.leaderboard];
+        let list = [...this.leaderboard];
 
-                const thRankMetric = document.getElementById('thRankMetric');
+        const thRankMetric = document.getElementById('thRankMetric');
 
-                if (category === 'score') {
-                    list.sort((a, b) => b.score - a.score);
-                    if (thRankMetric) thRankMetric.textContent = 'Pontos';
-                } else if (category === 'fastest') {
-                    list.sort((a, b) => (a.fastestReaction || 99) - (b.fastestReaction || 99));
-                    if (thRankMetric) thRankMetric.textContent = 'Reação';
-                } else if (category === 'combo') {
-                    list.sort((a, b) => (b.maxCombo || 0) - (a.maxCombo || 0));
-                    if (thRankMetric) thRankMetric.textContent = 'Maior Combo';
-                } else if (category === 'wins') {
-                    list.sort((a, b) => (b.wins || 0) - (a.wins || 0));
-                    if (thRankMetric) thRankMetric.textContent = 'Vitórias';
-                } else if (category === 'round') {
-                    list.sort((a, b) => (b.bestRound || 0) - (a.bestRound || 0));
-                    if (thRankMetric) thRankMetric.textContent = 'Melhor Rodada';
-                }
+        if (category === 'score') {
+          list.sort((a, b) => b.score - a.score);
+          if (thRankMetric) thRankMetric.textContent = 'Pontos';
+        } else if (category === 'fastest') {
+          list.sort((a, b) => (a.fastestReaction || 99) - (b.fastestReaction || 99));
+          if (thRankMetric) thRankMetric.textContent = 'Reação';
+        } else if (category === 'combo') {
+          list.sort((a, b) => (b.maxCombo || 0) - (a.maxCombo || 0));
+          if (thRankMetric) thRankMetric.textContent = 'Maior Combo';
+        } else if (category === 'wins') {
+          list.sort((a, b) => (b.wins || 0) - (a.wins || 0));
+          if (thRankMetric) thRankMetric.textContent = 'Vitórias';
+        } else if (category === 'round') {
+          list.sort((a, b) => (b.bestRound || 0) - (a.bestRound || 0));
+          if (thRankMetric) thRankMetric.textContent = 'Melhor Rodada';
+        }
 
-                list.forEach((item, idx) => {
-                    const isCurrent = this.playerName && item.name.toLowerCase() === this.playerName.toLowerCase();
-                    const tr = document.createElement('tr');
-                    tr.className = isCurrent ? 'bg-blue-50/80 font-extrabold border-l-4 border-l-[#1677FF]' : 'hover:bg-slate-50';
+        // Mensagem amigável caso o ranking ainda esteja vazio
+        if (list.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="py-8 text-center text-slate-400 font-semibold">
+                Nenhum jogador no ranking ainda. Seja o primeiro a jogar!
+              </td>
+            </tr>
+          `;
+          const myBanner = document.getElementById('rankingCurrentPlayerBanner');
+          if (myBanner) myBanner.classList.add('hidden');
+          return;
+        }
 
-                    let rankBadge = `${idx + 1}º`;
-                    if (idx === 0) rankBadge = '🥇 1º';
-                    if (idx === 1) rankBadge = '🥈 2º';
-                    if (idx === 2) rankBadge = '🥉 3º';
+        list.forEach((item, idx) => {
+          const isCurrent = this.playerName && item.name.toLowerCase() === this.playerName.toLowerCase();
+          const tr = document.createElement('tr');
+          tr.className = isCurrent ? 'bg-blue-50/80 font-extrabold border-l-4 border-l-[#1677FF]' : 'hover:bg-slate-50';
 
-                    let metricVal = item.score.toLocaleString('pt-BR');
-                    if (category === 'fastest') metricVal = item.fastestReaction ? `${item.fastestReaction.toFixed(2)}s` : '--';
-                    if (category === 'combo') metricVal = `x${item.maxCombo || 1}`;
-                    if (category === 'wins') metricVal = `${item.wins || 0} vitórias`;
-                    if (category === 'round') metricVal = `${(item.bestRound || 0).toLocaleString('pt-BR')} pts`;
+          let rankBadge = `${idx + 1}º`;
+          if (idx === 0) rankBadge = '🥇 1º';
+          if (idx === 1) rankBadge = '🥈 2º';
+          if (idx === 2) rankBadge = '🥉 3º';
 
-                    tr.innerHTML = `
+          let metricVal = item.score.toLocaleString('pt-BR');
+          if (category === 'fastest') metricVal = item.fastestReaction ? `${item.fastestReaction.toFixed(2)}s` : '--';
+          if (category === 'combo') metricVal = `x${item.maxCombo || 1}`;
+          if (category === 'wins') metricVal = `${item.wins || 0} vitórias`;
+          if (category === 'round') metricVal = `${(item.bestRound || 0).toLocaleString('pt-BR')} pts`;
+
+          tr.innerHTML = `
             <td class="py-3 px-4 text-center font-bold">${rankBadge}</td>
             <td class="py-3 px-4 flex items-center gap-2">
               <span class="${isCurrent ? 'text-[#1677FF]' : 'text-[#0B1F3A]'}">${item.name}</span>
@@ -1913,68 +1816,69 @@
             <td class="py-3 px-4 text-center hidden md:table-cell text-slate-600">${item.wins || 0}</td>
             <td class="py-3 px-4 text-right hidden sm:table-cell text-slate-600">${(item.bestRound || 0).toLocaleString('pt-BR')}</td>
           `;
-                    tbody.appendChild(tr);
-                });
+          tbody.appendChild(tr);
+        });
 
-                const myBanner = document.getElementById('rankingCurrentPlayerBanner');
-                if (this.playerName) {
-                    const myIndex = list.findIndex(i => i.name.toLowerCase() === this.playerName.toLowerCase());
-                    if (myIndex !== -1) {
-                        if (myBanner) myBanner.classList.remove('hidden');
-                        const posEl = document.getElementById('myRankPos');
-                        if (posEl) posEl.textContent = `#${myIndex + 1}`;
-
-                        const nameEl = document.getElementById('myRankName');
-                        if (nameEl) nameEl.textContent = this.playerName;
-
-                        const gapEl = document.getElementById('myRankGap');
-                        if (gapEl) {
-                            if (myIndex > 0) {
-                                const diff = list[myIndex - 1].score - list[myIndex].score;
-                                gapEl.textContent = `Faltam ${diff.toLocaleString('pt-BR')} pts para subir para #${myIndex}!`;
-                            } else {
-                                gapEl.textContent = '👑 Você está em 1º lugar!';
-                            }
-                        }
-                    } else {
-                        if (myBanner) myBanner.classList.add('hidden');
-                    }
-                } else {
-                    if (myBanner) myBanner.classList.add('hidden');
-                }
+        const myBanner = document.getElementById('rankingCurrentPlayerBanner');
+        if (this.playerName) {
+          const myIndex = list.findIndex(i => i.name.toLowerCase() === this.playerName.toLowerCase());
+          if (myIndex !== -1) {
+            if (myBanner) myBanner.classList.remove('hidden');
+            const posEl = document.getElementById('myRankPos');
+            if (posEl) posEl.textContent = `#${myIndex + 1}`;
+            
+            const nameEl = document.getElementById('myRankName');
+            if (nameEl) nameEl.textContent = this.playerName;
+            
+            const gapEl = document.getElementById('myRankGap');
+            if (gapEl) {
+              if (myIndex > 0) {
+                const diff = list[myIndex - 1].score - list[myIndex].score;
+                gapEl.textContent = `Faltam ${diff.toLocaleString('pt-BR')} pts para subir para #${myIndex}!`;
+              } else {
+                gapEl.textContent = '👑 Você está em 1º lugar!';
+              }
             }
+          } else {
+            if (myBanner) myBanner.classList.add('hidden');
+          }
+        } else {
+          if (myBanner) myBanner.classList.add('hidden');
+        }
+      }
 
-            renderRecordsScreen() {
-                const highScoreEl = document.getElementById('recHighScore');
-                if (highScoreEl) highScoreEl.textContent = this.records.highScore.toLocaleString('pt-BR');
+      renderRecordsScreen() {
+        const highScoreEl = document.getElementById('recHighScore');
+        if (highScoreEl) highScoreEl.textContent = this.records.highScore.toLocaleString('pt-BR');
 
-                const maxComboEl = document.getElementById('recMaxCombo');
-                if (maxComboEl) maxComboEl.textContent = `x${this.records.maxCombo}`;
+        const maxComboEl = document.getElementById('recMaxCombo');
+        if (maxComboEl) maxComboEl.textContent = `x${this.records.maxCombo}`;
 
-                const bestReactionEl = document.getElementById('recBestReaction');
-                if (bestReactionEl) bestReactionEl.textContent = this.records.bestReaction ? `${this.records.bestReaction.toFixed(2)}s` : '--';
+        const bestReactionEl = document.getElementById('recBestReaction');
+        if (bestReactionEl) bestReactionEl.textContent = this.records.bestReaction ? `${this.records.bestReaction.toFixed(2)}s` : '--';
 
-                const totalGamesEl = document.getElementById('recTotalGames');
-                if (totalGamesEl) totalGamesEl.textContent = this.records.totalGames;
+        const totalGamesEl = document.getElementById('recTotalGames');
+        if (totalGamesEl) totalGamesEl.textContent = this.records.totalGames;
 
-                this.renderAchievementsList();
-            }
+        this.renderAchievementsList();
+      }
 
-            renderAchievementsList() {
-                const container = document.getElementById('achievementsContainer');
-                if (!container) return;
-                container.innerHTML = '';
+      renderAchievementsList() {
+        const container = document.getElementById('achievementsContainer');
+        if (!container) return;
+        container.innerHTML = '';
 
-                const ratioEl = document.getElementById('achievementsRatio');
-                if (ratioEl) ratioEl.textContent = `${this.unlockedAchievements.size}/${this.achievementsList.length} Desbloqueadas`;
+        const ratioEl = document.getElementById('achievementsRatio');
+        if (ratioEl) ratioEl.textContent = `${this.unlockedAchievements.size}/${this.achievementsList.length} Desbloqueadas`;
 
-                this.achievementsList.forEach(ach => {
-                    const isUnlocked = this.unlockedAchievements.has(ach.id);
-                    const div = document.createElement('div');
-                    div.className = `p-3.5 rounded-2xl border flex items-center gap-3 transition ${isUnlocked ? 'bg-blue-50/60 border-blue-200' : 'bg-slate-50 border-slate-200 opacity-50 grayscale'
-                        }`;
+        this.achievementsList.forEach(ach => {
+          const isUnlocked = this.unlockedAchievements.has(ach.id);
+          const div = document.createElement('div');
+          div.className = `p-3.5 rounded-2xl border flex items-center gap-3 transition ${
+            isUnlocked ? 'bg-blue-50/60 border-blue-200' : 'bg-slate-50 border-slate-200 opacity-50 grayscale'
+          }`;
 
-                    div.innerHTML = `
+          div.innerHTML = `
             <div class="w-10 h-10 rounded-xl ${isUnlocked ? 'bg-[#1677FF] text-white' : 'bg-slate-300 text-slate-500'} flex items-center justify-center text-lg font-bold">
               <i class="fa-solid ${ach.icon}"></i>
             </div>
@@ -1983,35 +1887,34 @@
               <p class="text-[11px] text-slate-500 font-semibold">${ach.desc}</p>
             </div>
           `;
-                    container.appendChild(div);
-                });
-            }
-
-            confirmClearData() {
-                this.openModal('modalConfirmClear');
-            }
-
-            clearAllData() {
-                localStorage.removeItem('b10s_records');
-                localStorage.removeItem('b10s_achievements');
-                localStorage.removeItem('b10s_leaderboard');
-                this.records = {highScore: 0, maxCombo: 0, bestReaction: null, totalGames: 0, wins: 0};
-                this.unlockedAchievements.clear();
-                this.leaderboard = [];
-                this.closeModal('modalConfirmClear');
-                this.renderRanking('score');
-                this.showScreen('home');
-            }
-        }
-
-        // Global Instance
-        let app;
-        window.addEventListener('DOMContentLoaded', () => {
-            app = new GameEngine();
-            window.app = app;
-            app.init();
+          container.appendChild(div);
         });
-    </script>
-</body>
+      }
 
+      confirmClearData() {
+        this.openModal('modalConfirmClear');
+      }
+
+      clearAllData() {
+        localStorage.removeItem('b10s_records');
+        localStorage.removeItem('b10s_achievements');
+        localStorage.removeItem('b10s_leaderboard');
+        this.records = { highScore: 0, maxCombo: 0, bestReaction: null, totalGames: 0, wins: 0 };
+        this.unlockedAchievements.clear();
+        this.leaderboard = [];
+        this.closeModal('modalConfirmClear');
+        this.renderRanking('score');
+        this.showScreen('home');
+      }
+    }
+
+    // Global Instance
+    let app;
+    window.addEventListener('DOMContentLoaded', () => {
+      app = new GameEngine();
+      window.app = app;
+      app.init();
+    });
+  </script>
+</body>
 </html>
